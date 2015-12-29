@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 dotfiles=${$(dirname $0):a}
 
 if [[ ! -f ${HOME}/.zgen/zgen.zsh ]];then
