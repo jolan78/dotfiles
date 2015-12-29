@@ -1,5 +1,5 @@
 #!/bin/sh
-dotfiles=`dirname $0`;
+dotfiles==${(dirname $0):a}
 
 if [[ ! -f ${HOME}/.zgen/zgen.zsh ]];then
 	echo 'installing zgen';
