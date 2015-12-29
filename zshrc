@@ -20,7 +20,11 @@ if ! zgen saved; then
     zgen oh-my-zsh plugins/urltools
     zgen oh-my-zsh plugins/colored-man-pages
 
-    zgen load zsh-users/zsh-syntax-highlighting
+		autoload -U is-at-least
+		if is-at-least 4.3.17; then
+			zgen load zsh-users/zsh-syntax-highlighting
+		fi
+
     zgen load zsh-users/zsh-completions src
 
 		# must be loaded before theme
