@@ -252,7 +252,7 @@ endif
 " tell Vim where to find the autoload function:
 set runtimepath+=$SSHUSER_HOME/.vim/bundle/Vundle.vim
 
-call vundle#begin()
+call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 
 
 " let Vundle manage Vundle, required

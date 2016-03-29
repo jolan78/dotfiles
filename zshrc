@@ -1,14 +1,17 @@
 # home directory of the user which logged in
-if [[ ! -n "$ORIG_HOME" ]];then
-	export ORIG_HOME=$HOME;
+if [[ ! -n "$ZDOTDIR" ]];then
+	export ZDOTDIR=$HOME;
 fi
+# zgen use HOME instead of ZDOTDIR
+export ZGEN_DIR=$ZDOTDIR/.zgen;
 
 # agnoster l'utilise pour masquer le nom de l'utilisateur
 export DEFAULT_USER=joseph
 
-# load zgen
-source "${ORIG_HOME}/.zgen/zgen.zsh"
+alias compinit="compinit -u"
 
+# load zgen
+source "${ZDOTDIR}/.zgen/zgen.zsh"
 # check if there's no init script
 if ! zgen saved; then
     echo "Creating a zgen save"
@@ -55,7 +58,7 @@ function alt-prompt() {
 }
 
 # conserve la config de l'utilisateur d'origine
-export VIMINIT="let \$SSHUSER_HOME=\"$ORIG_HOME\" | so $ORIG_HOME/.vimrc | let \$MYVIMRC = \"$ORIG_HOME/.vimrc\""
+export VIMINIT="let \$SSHUSER_HOME=\"$ZDOTDIR\" | so $ZDOTDIR/.vimrc | let \$MYVIMRC = \"$ZDOTDIR/.vimrc\""
 # remplace su par une version qui conserve le shell de l'utilisateur d'origine
 if [ "`uname`" = "Darwin" ]; then
 	alias su="sudo -s";
