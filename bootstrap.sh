@@ -11,9 +11,9 @@ for file in zshrc vimrc ;do
 	if [[ ! -h $path ]];then
 		if [[ -f $path ]];then
 			echo "saving previous .$file to $path.backup"
-			mv $path $path.backup
+			/bin/mv $path $path.backup
 		fi
 		echo "creating a link to $file"
-		ln -s $dotfiles/$file $path
+		/bin/ln -s $dotfiles/$file $path
 	fi
 done
