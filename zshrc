@@ -57,6 +57,10 @@ function alt-prompt() {
 	zgen oh-my-zsh themes/$theme;
 }
 
+if [[ -f $ZDOTDIR/.iterm2_shell_integration.zsh ]];then
+	source $ZDOTDIR/.iterm2_shell_integration.zsh
+fi
+
 # conserve la config de l'utilisateur d'origine
 export VIMINIT="let \$SSHUSER_HOME=\"$ZDOTDIR\" | so $ZDOTDIR/.vimrc | let \$MYVIMRC = \"$ZDOTDIR/.vimrc\""
 # remplace su par une version qui conserve le shell de l'utilisateur d'origine

@@ -6,7 +6,7 @@ if [[ ! -f ${HOME}/.zgen/zgen.zsh ]];then
 	git clone https://github.com/tarjoilija/zgen.git ${HOME}/.zgen
 fi
 
-for file in zshrc vimrc ;do
+for file in iterm2_shell_integration.zsh zshrc vimrc ;do
 	path=$HOME/.$file
 	if [[ ! -h $path ]];then
 		if [[ -f $path ]];then
