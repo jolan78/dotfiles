@@ -81,3 +81,4 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 alias glog="git log --color --decorate --graph --stat --abbrev-commit"
 compdef _git glog="git log"
 
+autoload zmv
