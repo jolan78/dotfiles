@@ -255,6 +255,7 @@ set runtimepath+=$SSHUSER_HOME/.vim/bundle/Vundle.vim
 call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 
 
+	Plugin 'indentpython.vim'
 " let Vundle manage Vundle, required
 	Plugin 'VundleVim/Vundle.vim'
 
