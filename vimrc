@@ -169,7 +169,7 @@ set tabstop=2
 
 " Map <C-L> (redraw screen) to also turn off search highlighting until the
 " next search
-nnoremap <C-L> :nohl<CR><C-L>
+nnoremap <C-L> :nohl<CR>::syntax sync fromstart<CR><C-L>
 
 " Map <C-@> to <C-]> (jump to tag in vim help) because it's not avail.
 nnoremap <C-@> <C-]>
@@ -293,6 +293,9 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 
 	" deactivated plugins
 	"'swap_parameters' -> requires python
+
+	" more up to date php
+	Plugin 'StanAngeloff/php.vim'"
 call vundle#end()
 
 "------------------------------------------------------------
