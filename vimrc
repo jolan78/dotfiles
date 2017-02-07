@@ -287,6 +287,7 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 	" workaround for delimitMate breaking ESC (not anymore ?) :
 	"set timeout
 	
+	Plugin 'matchit.zip'
 	"load this on demand only
 	"Plugin 'joonty/vdebug'
 
