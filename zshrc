@@ -57,8 +57,8 @@ function alt-prompt() {
 	zgen oh-my-zsh themes/$theme;
 }
 
-if [[ -f $HOME/.iterm2_shell_integration.zsh ]];then
-	source $HOME/.iterm2_shell_integration.zsh
+if [[ -f ${ZDOTDIR}/.iterm2_shell_integration.zsh ]];then
+	source ${ZDOTDIR}/.iterm2_shell_integration.zsh
 fi
 
 # conserve la config de l'utilisateur d'origine
