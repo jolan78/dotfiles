@@ -59,6 +59,7 @@ function alt-prompt() {
 
 if [[ -f ${ZDOTDIR}/.iterm2_shell_integration.zsh ]];then
 	source ${ZDOTDIR}/.iterm2_shell_integration.zsh
+	export PATH="${PATH}:${ZDOTDIR}/bin"
 fi
 
 # conserve la config de l'utilisateur d'origine
