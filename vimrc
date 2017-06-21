@@ -19,6 +19,7 @@ syntax on
 " highlight cursor line
 set cursorline
 
+let mapleader = ","
 "------------------------------------------------------------
 " Must have options {{{1
 "
@@ -196,6 +197,8 @@ autocmd FileType php set iskeyword+=_,$" none of these are word dividers
 
 autocmd FileType php setlocal omnifunc=phpcomplete#CompletePHP
 
+autocmd FileType php set tabstop=4 shiftwidth=4 noexpandtab
+
 " PIV incorrectly set php functions as Identifier's
 hi def link phpFunctions        Function
 
@@ -290,9 +293,28 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 	Plugin 'matchit.zip'
 	"load this on demand only
 	"Plugin 'joonty/vdebug'
+	"
+	" sidebar w/ registers when pasting
+	Plugin 'junegunn/vim-peekaboo'
+	" Heuristically set buffer options
+	" Plugin 'tpope/vim-sleuth'
+	" Underlines the word under the cursor
+	Plugin 'itchyny/vim-cursorword'
+	
+	Plugin 'mbbill/undotree'
 
 	" deactivated plugins
 	"'swap_parameters' -> requires python
+	
+	" colorize indent guides
+	Plugin 'nathanaelkane/vim-indent-guides'
+	" interactoive shell interpreter (requires psysh)
+	Plugin 'metakirby5/codi.vim'
+	" display fn doc
+	Plugin 'Shougo/echodoc.vim'
+
+	" change args position . use :SidewaysRight
+	Plugin 'AndrewRadev/sideways.vim'
 
 	" more up to date php
 	Plugin 'StanAngeloff/php.vim'"
@@ -307,3 +329,13 @@ colorscheme solarized
 " change function color to yellow
 hi Function cterm=bold ctermfg=136
 
+" vim-indent-guides {{{1
+let g:indent_guides_auto_colors = 0
+"autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=black   ctermbg=black
+"autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=darkgrey ctermbg=darkgrey
+hi IndentGuidesOdd  ctermbg=234
+hi IndentGuidesEven ctermbg=235
+let g:indent_guides_guide_size=1
+
+autocmd FileType php IndentGuidesEnable
+autocmd FileType php EchoDocEnable
