@@ -213,15 +213,6 @@ set listchars=tab:\ \ ,trail:.
 set nostartofline " leave my cursor where it was
 set showmatch " show matching brackets when inserting
 
-function! SLReadOnly()
-	if(&ro)
-		return '✗'
-	else
-		return ''
-	endif
-endf
-set statusline=%<%F\ %m%#Error#%{SLReadOnly()}%#StatusLine#%=C:%b/0x%B\ %l,%c\ %P%h\ %y[%{&fenc}/%{&ff}]
-
 " c : Auto-wrap comments using textwidth, inserting the current comment leader
 " automatically.
 set formatoptions+=c
@@ -318,6 +309,9 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 
 	" more up to date php
 	Plugin 'StanAngeloff/php.vim'"
+
+	" usefull for statusline
+	Plugin 'rafi/vim-badge'
 call vundle#end()
 
 "------------------------------------------------------------
@@ -339,3 +333,82 @@ let g:indent_guides_guide_size=1
 
 autocmd FileType php IndentGuidesEnable
 autocmd FileType php EchoDocEnable
+
+" statusline
+"
+" badge is autoloaded. we must call it before testing existance
+silent! call badge#root()
+if exists('*badge#root')
+	" Statusline {{{
+	let s:stl  = " %7*%{&paste ? '=' : ''}%*"         " Paste symbol
+	let s:stl .= "%4*%{&readonly ? '' : '#'}%*"       " Modifide symbol
+	let s:stl .= "%6*%{badge#mode('⚠', 'Z')}"         " Readonly symbol
+	let s:stl .= '%*%n'                               " Buffer number
+	let s:stl .= "%6*%{badge#modified('+')}%0*"       " Write symbol
+	let s:stl .= ' %1*%{badge#filename()}%*'          " Filename
+	let s:stl .= ' %<'                                " Truncate here
+	let s:stl .= '%( %{badge#branch()} %)'           " Git branch name
+	let s:stl .= "%4*%(%{badge#trails('WS:%s')} %)"  " Whitespace
+	"let s:stl .= '%(%{badge#syntax()} %)%*'           " syntax check (requires
+	"neomake/syntastic)
+	let s:stl .= '%='                                 " Align to right
+	let s:stl .= '%{badge#format()} %4*%*'           " File format
+	let s:stl .= '%( %{&fenc} %)'                     " File encoding
+	let s:stl .= '%4*%*%( %{&ft} %)'                 " File type
+	let s:stl .= '%3*%2* %l/%-2c %3b/0x%-2B %4p%% '               " Line and column
+	let s:stl .= '%{badge#indexing()}%*'              " Indexing tags indicator
+
+	" Non-active Statusline {{{
+	let s:stl_nc = " %{badge#mode('⚠', 'Z')}%n"    " Readonly & buffer
+	let s:stl_nc .= "%6*%{badge#modified('+')}%*"  " Write symbol
+	let s:stl_nc .= ' %{badge#filename()}'         " Relative supername
+	let s:stl_nc .= '%='                           " Align to right
+	let s:stl_nc .= '%{&ft} '                      " File type
+	" Toggle Statusline {{{
+	augroup statusline
+		autocmd!
+		autocmd FileType,WinEnter,BufWinEnter,BufReadPost *
+			\ if &filetype !~? s:disable_statusline
+			\ | let &l:statusline = s:stl
+			\ | endif
+		autocmd WinLeave *
+			\ if &filetype !~? s:disable_statusline
+			\ | let &l:statusline = s:stl_nc
+			\ | endif
+	augroup END "}}}
+else
+	function! SLReadOnly()
+		if(&ro)
+			return '✗'
+		else
+			return ''
+		endif
+	endf
+	set statusline=%<%F\ %m%#Error#%{SLReadOnly()}%#StatusLine#%=C:%b/0x%B\ %l,%c\ %P%h\ %y[%{&fenc}/%{&ff}]
+endif
+" }}}
+
+" Highlights: Statusline {{{
+highlight StatusLine   ctermfg=236 ctermbg=248 guifg=#30302c guibg=#a8a897
+highlight StatusLineNC ctermfg=236 ctermbg=242 guifg=#30302c guibg=#666656
+
+" Filepath color
+highlight User1 guifg=#D7D7BC guibg=#30302c ctermfg=251 ctermbg=236
+" Line and column information
+highlight User2 guifg=#a8a897 guibg=#4e4e43 ctermfg=248 ctermbg=239
+" Line and column corner arrow
+highlight User3 guifg=#4e4e43 guibg=#30302c ctermfg=239 ctermbg=236
+" Buffer # symbol and whitespace or syntax errors
+highlight User4 guifg=#666656 guibg=#30302c ctermfg=242 ctermbg=236
+" Write symbol
+highlight User6 guifg=#cf6a4c guibg=#30302c ctermfg=167 ctermbg=236
+" Paste symbol
+highlight User7 guifg=#99ad6a guibg=#30302c ctermfg=107 ctermbg=236
+" Syntax and whitespace
+highlight User8 guifg=#ffb964 guibg=#30302c ctermfg=215 ctermbg=236
+" }}}
+
+let s:disable_statusline =
+	\ 'denite\|unite\|vimfiler\|tagbar\|nerdtree\|undotree\|gundo\|diff\|peekaboo\|sidemenu'
+" }}}
+
