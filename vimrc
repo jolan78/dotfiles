@@ -37,6 +37,10 @@ set wildmenu
 " ignore these list file extensions
 " set wildignore=*.dll,*.o,*.obj
 
+" Search down into subfolders
+" Provides tab-completion for all file-related tasks
+set path+=**
+
 " Show partial commands in the last line of the screen
 set showcmd
 
@@ -312,6 +316,15 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 
 	" usefull for statusline
 	Plugin 'rafi/vim-badge'
+
+"	Plugin 'vim-php/tagbar-phpctags.vim'
+"	let g:tagbar_ctags_bin = 'phpctags'
+"	Plugin 'majutsushi/tagbar'
+
+" easytags
+"let g:easytags_cmd = '/Users/joseph/bin/phpctags'
+"	Plugin 'xolox/vim-misc'
+"	Plugin 'xolox/vim-easytags'
 call vundle#end()
 
 "------------------------------------------------------------
