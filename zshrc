@@ -1,89 +1,192 @@
+# Uncomment line below to troubleshoot startup speed issues
+# BENCHMARK=1 && zmodload zsh/zprof
+
 # home directory of the user which logged in
 if [[ ! -n "$ZDOTDIR" ]];then
-	export ZDOTDIR=$HOME;
+  export ZDOTDIR=$HOME;
 fi
-# zgen use HOME instead of ZDOTDIR
-export ZGEN_DIR=$ZDOTDIR/.zgen;
+
+export ZPLUGIN_HOME=$ZDOTDIR/.zplugin
+
+if [[ -f "${ZPLUGIN_HOME}/bin/zmodules/Src/zdharma/zplugin.so" ]]; then
+    module_path+=( "${ZPLUGIN_HOME}/bin/zmodules/Src" )
+    zmodload zdharma/zplugin
+fi
 
 # agnoster l'utilise pour masquer le nom de l'utilisateur
 export DEFAULT_USER=joseph
 
-alias compinit="compinit -u"
+# must be loaded before theme
+source "${ZDOTDIR}/.zshrc-local"
 
-# load zgen
-source "${ZDOTDIR}/.zgen/zgen.zsh"
-# check if there's no init script
-if ! zgen saved; then
-    echo "Creating a zgen save"
-
-    zgen oh-my-zsh
-
-    # plugins
-    zgen oh-my-zsh plugins/git
-    zgen oh-my-zsh plugins/urltools
-    zgen oh-my-zsh plugins/colored-man-pages
-
-		autoload -U is-at-least
-		if is-at-least 4.3.17; then
-			zgen load zsh-users/zsh-syntax-highlighting
-		fi
-
-    zgen load zsh-users/zsh-completions src
-
-		# must be loaded before theme
-		zgen load ${HOME}/.zshrc-local
-
-    # themes
-		# arrow is fast
-    #zgen oh-my-zsh themes/arrow
-    #zgen oh-my-zsh themes/kphoen
-		zgen load jolan78/agnoster-zsh-theme agnoster
-
-
-    zgen save
+if [[ ! -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
+  printf "Install Zplugin? [y/N]: "
+  if read -q; then
+		mkdir -p "${ZPLUGIN_HOME}/bin"
+    echo; git clone https://github.com/zdharma/zplugin.git ${ZPLUGIN_HOME}/bin && zcompile ${ZPLUGIN_HOME}/bin/zplugin.zsh
+  fi
 fi
 
-# avit does not load correctly from function :(
-# frisk is opk on clear bg
-# gentoo is classic
-# kphoen is ok on both clear or dark bg
+if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
+  source "${ZPLUGIN_HOME}/bin/zplugin.zsh"
+
+	# provides urlencode / urlidecode
+  zplugin snippet OMZ::plugins/urltools/urltools.plugin.zsh
+
+  zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
+
+	# fish-like autosuggestions
+	zplugin light zsh-users/zsh-autosuggestions
+
+	zplugin light zdharma/fast-syntax-highlighting
+
+	zplugin ice blockf
+  zplugin light zsh-users/zsh-completions
+  zplugin light zsh-users/zsh-history-substring-search
+
+	
+  # themes
+	setopt promptsubst # most theme need this
+  zplugin load jolan78/agnoster-zsh-theme
+
+
+	# plug-ins to try :
+	# records visited paths and use fzf/peco to choose one :
+	# zplug "b4b4r07/enhancd", of:enhancd.sh
+	# a fast? git pronpt for use in themes :
+	# zplug "olivierverdier/zsh-git-prompt", of:"*.sh"
+	# auto completion on-the-fly :
+	# zplug "hchbaw/auto-fu.zsh", at:pu
+  # Vanilla shell :
+  # zplug "yous/vanilli.sh"
+	# better powerline theme :
+	# zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme
+
+	autoload -Uz compinit
+	compinit
+
+	zplugin cdreplay -q # -q is for quiet
+fi
+
+compdef "_arguments '1:Theme:((\
+	kphoen:\"(default) works well on both clear and dark background\"\
+ 	gentoo\:\"classic theme\"\
+ 	arrow\:fast\
+ 	frisk\:\"works well on clear background\"\
+ 	avit\:buggy\
+	))'" alt-prompt
+
 function alt-prompt() {
-	if [[ ! -z $1 ]]; then
-		theme=$1;
-	else
-		theme="kphoen";
-	fi
-	echo loading theme $theme;
-	zgen oh-my-zsh themes/$theme;
+  if [[ ! -z $1 ]]; then
+    theme=$1;
+  else
+    theme="kphoen";
+  fi
+  echo loading theme $theme;
+	# remove agnoster hook
+	add-zsh-hook -d precmd prompt_agnoster_precmd
+	# load colors
+	autoload colors
+	colors
+	# load required plugins
+	zplugin snippet OMZ::lib/git.zsh
+	zplugin snippet OMZ::plugins/git/git.plugin.zsh
+	# forget completion
+	#zplugin cdclear -q
+	#load theme
+	zplugin snippet OMZ::themes/${theme}.zsh-theme
 }
 
+# change agnoster characters to non-powerine approximation
+function nopowerline() {
+	SEGMENT_SEPARATOR="\u25BA"
+  BRANCH="\u16B4"
+}
+function powerline() {
+	SEGMENT_SEPARATOR="\ue0b0"
+  BRANCH="\ue0a0"
+}
 if [[ -f ${ZDOTDIR}/.iterm2_shell_integration.zsh ]];then
-	source ${ZDOTDIR}/.iterm2_shell_integration.zsh
-	export PATH="${PATH}:${ZDOTDIR}/bin"
+  source ${ZDOTDIR}/.iterm2_shell_integration.zsh
 fi
 
-# conserve la config de l'utilisateur d'origine
+export PATH="${PATH}:${ZDOTDIR}/bin"
+
+# alt + up/down subsrting searche in history
+#if zplug check "zsh-users/zsh-history-substring-search"; then
+	bindkey '^[[1;9A' history-substring-search-up # ALT-UP
+	bindkey '^[[1;9B' history-substring-search-down # ALT-DOWN
+#fi
+# up/down search entry starting with current entry (even with spaces)
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search # Up
+bindkey "^[[B" down-line-or-beginning-search # Down
+bindkey "^[[3~" delete-char # del
+autoload edit-command-line
+zle -N edit-command-line
+bindkey "^X^E" edit-command-line # ^X^E : edit current line in vim
+
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=239"
+
+# conserve la config vim de l'utilisateur d'origine
 export VIMINIT="let \$SSHUSER_HOME=\"$ZDOTDIR\" | so $ZDOTDIR/.vimrc | let \$MYVIMRC = \"$ZDOTDIR/.vimrc\""
 # remplace su par une version qui conserve le shell de l'utilisateur d'origine
 if [ "`uname`" = "Darwin" ]; then
-	alias su="sudo -s";
+  alias su="sudo -s";
 else
-	alias su="su -s $SHELL";
+  alias su="su -s $SHELL";
 fi
 # redéfinit HOME et autres variables, quand on a utilisé l'alias su
 HOME=~$(whoami)
 HISTFILE=$HOME/.zsh_history
+HISTSIZE=13000
+SAVEHIST=10000
 
 # See http://geoff.greer.fm/lscolors/
 export LSCOLORS="exfxcxdxbxbxbxbxbxbxbx"
 export LS_COLORS="di=34;40:ln=35;40:so=32;40:pi=33;40:ex=31;40:bd=31;40:cd=31;40:su=31;40:sg=31;40:tw=31;40:ow=31;40:"
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' menu select # completion menu is browsable
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}' 'r:|=*' 'l:|=* r:|=*' #case insensitive
+zstyle ':completion:*' group-name '' # group completions
+zstyle ':completion:*:descriptions' format '%B=== %d ===%b' # format for group names
+
+setopt auto_menu              # show completion menu on successive tab press
+
+## cd
+setopt auto_cd                # try cd if a command does not exist
+setopt auto_pushd             # push old directory on cd
+setopt pushd_ignore_dups
+## completion
+setopt always_to_end          # move cursor to the end on completion
+setopt complete_in_word       # allow completion in the middle of a word
+unsetopt list_beep            # no beep on ambigous completion
+## History command configuration
+setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt hist_ignore_dups       # ignore duplicated commands history list
+setopt hist_ignore_space      # ignore commands that start with space
+setopt hist_verify            # show command with history expansion to user before running it
+setopt share_history          # share command history data
+# these two options are set by share_history:
+#setopt extended_history       # record timestamp of command in HISTFILE
+#setopt inc_append_history     # add commands to HISTFILE in order of execution
+
+bindkey '^r' history-incremental-search-backward      # [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
+
 
 alias glog="git log --color --decorate --graph --stat --abbrev-commit"
 compdef _git glog="git log"
-
-# group completions
-zstyle ':completion:*' group-name ''
-zstyle ':completion:*:descriptions' format %B%d%b # bold
+alias l='ls -lah'
+alias ls='ls -G'
+alias grep='grep --color=auto --exclude-dir="{.bzr,CVS,.git,.hg,.svn}"'
 
 autoload zmv
+
+if [[ -n "$BENCHMARK" ]] ;
+    then zprof > "$HOME/.zsh_bench"
+fi
+
