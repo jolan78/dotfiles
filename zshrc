@@ -44,6 +44,10 @@ if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
   zplugin light zsh-users/zsh-completions
   zplugin light zsh-users/zsh-history-substring-search
 
+	# this will not work ATM:
+	#zplugin ice pick"grep_wrappers.zsh"
+	#zplugin load jolan78/dotfiles
+	zplugin snippet https://raw.githubusercontent.com/jolan78/dotfiles/master/grep_wrappers.zsh
 	
   # themes
 	setopt promptsubst # most theme need this
