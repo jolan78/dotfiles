@@ -75,9 +75,6 @@ function {tg,gl,exgl,extg} () {
 
 if [[ $(readlink $0) == "" ]];then
 	# being sourced, install completion
-	autoload -Uz compinit
-	compinit
-
 	compdef tg=grep
 	compdef extg=grep
 	compdef gl=grep
