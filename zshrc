@@ -15,14 +15,21 @@ source "${ZDOTDIR}/.zshrc-local"
 
 ###################### key bindings ################
 ## keys must be binded before syntax plugins
-#bindkey -e
+bindkey -e
+# set application mode for terminfo to work
+if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
+	function zle-line-init () { echoti smkx }
+	function zle-line-finish () { echoti rmkx }
+	zle -N zle-line-init
+	zle -N zle-line-finish
+fi
 # up/down search entry starting with current entry (even with spaces)
 autoload -U up-line-or-beginning-search
 autoload -U down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
-bindkey "^[[A" up-line-or-beginning-search # Up
-bindkey "^[[B" down-line-or-beginning-search # Down
+bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search # Up
+bindkey "${terminfo[kcud1]}" down-line-or-beginning-search # Down
 bindkey '^[b' emacs-backward-word # alt-left
 bindkey '^[f' emacs-forward-word # alt-right
 bindkey "^A" beginning-of-line
