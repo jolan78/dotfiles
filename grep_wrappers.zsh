@@ -19,10 +19,9 @@
 unalias tg gl exgl extg 2>/dev/null
 
 function {tg,gl,exgl,extg} () {
-
 	local default_file=''
-	case $0[1,-3] in
-		gl,tg);;
+	case $0[1,2] in
+		gl|tg);;
 		ex) default_file='/var/log/exim4/mainlog';;
 		*) return 1;;
 	esac
@@ -34,7 +33,7 @@ function {tg,gl,exgl,extg} () {
 	for ar in $argv ; do
 		if [[ ($after_dashdash == false) && ($ar[1] == '-') ]] ; then
 			if [[ $pattern != '' ]] ; then
-				printf 'error : otions after arguments' 2>&1
+				printf 'error : otions after arguments' 1>&2
 				return 1;
 			fi
 			if [[ $ar == '--' ]];then
@@ -60,17 +59,19 @@ function {tg,gl,exgl,extg} () {
 		files+=($default_file)
 	fi
 
+	local grcmd='grep'
 	if [[ $0[-2,$] == 'gl' ]]; then
-		local grcmd='grep'
 		local f
 		for f in $files; do
 			if [[ $f =~ '\.gz$' ]]; then
-				grcmd='zgrep'
+				grcmd="z${grcmd}"
 			fi
 		done
-		$grcmd $gropt $pattern $files| less
+		echo "$grcmd --color=always $gropt $pattern $files| less -R"
+		$grcmd --color=always $gropt $pattern $files| less -R
 	elif [[ $0[-2,$] == 'tg' ]]; then
-		tail -f $files | grep $gropt $pattern
+		echo "tail -f $files | $grcmd --color=auto $gropt $pattern"
+		tail -f $files | $grcmd --color=auto $gropt $pattern
 	fi
 }
 
