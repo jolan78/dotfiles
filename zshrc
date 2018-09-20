@@ -71,12 +71,13 @@ if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
   zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
 
 	# fish-like autosuggestions
+	zplugin ice blockf atload'ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=239"'
 	zplugin light zsh-users/zsh-autosuggestions
 
 	zplugin ice atload'ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)'
 	zplugin light zdharma/fast-syntax-highlighting
 
-	zplugin ice blockf atload'ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=239"'
+	zplugin ice blockf
   zplugin light zsh-users/zsh-completions
 	zplugin ice atload"bindkey '^[[1;9A' history-substring-search-up; bindkey '^[[1;9B' history-substring-search-down" # alt up/down for substring search
   zplugin light zsh-users/zsh-history-substring-search
