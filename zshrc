@@ -1,16 +1,10 @@
 # Uncomment line below to troubleshoot startup speed issues
 # BENCHMARK=1 && zmodload zsh/zprof
 
+
 # home directory of the user which logged in
 if [[ ! -n "$ZDOTDIR" ]];then
   export ZDOTDIR=$HOME;
-fi
-
-export ZPLUGIN_HOME=$ZDOTDIR/.zplugin
-
-if [[ -f "${ZPLUGIN_HOME}/bin/zmodules/Src/zdharma/zplugin.so" ]]; then
-    module_path+=( "${ZPLUGIN_HOME}/bin/zmodules/Src" )
-    zmodload zdharma/zplugin
 fi
 
 # agnoster l'utilise pour masquer le nom de l'utilisateur
@@ -18,6 +12,32 @@ export DEFAULT_USER=joseph
 
 # must be loaded before theme
 source "${ZDOTDIR}/.zshrc-local"
+
+###################### key bindings ################
+## keys must be binded before syntax plugins
+#bindkey -e
+# up/down search entry starting with current entry (even with spaces)
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search # Up
+bindkey "^[[B" down-line-or-beginning-search # Down
+bindkey '^[b' emacs-backward-word # alt-left
+bindkey '^[f' emacs-forward-word # alt-right
+bindkey "^A" beginning-of-line
+bindkey "^E" end-of-line
+bindkey "^[[3~" delete-char # del
+bindkey "^[[Z" reverse-menu-complete # Shift-Tab
+autoload edit-command-line
+zle -N edit-command-line
+bindkey "^X^E" edit-command-line # ^X^E : edit current line in editor
+# [Ctrl-r] - Search backward incrementally for a specified string.
+# The string may begin with ^ to anchor the search to the beginning of the line.
+bindkey '^r' history-incremental-search-backward
+
+####################### Zplugin ######################
+export ZPLUGIN_HOME=$ZDOTDIR/.zplugin
 
 if [[ ! -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
   printf "Install Zplugin? [y/N]: "
@@ -28,9 +48,17 @@ if [[ ! -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
 fi
 
 if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
+	# module built with 'zplugin module build', automatically compiles sourced scripts
+	if [[ -f "${ZPLUGIN_HOME}/bin/zmodules/Src/zdharma/zplugin.so" ]]; then
+			module_path+=( "${ZPLUGIN_HOME}/bin/zmodules/Src" )
+			zmodload zdharma/zplugin
+	else
+		echo 'zplugin module is not available. (zplugin module build)'
+	fi
+
   source "${ZPLUGIN_HOME}/bin/zplugin.zsh"
 
-	# provides urlencode / urlidecode
+	# provides urlencode / urldecode
   zplugin snippet OMZ::plugins/urltools/urltools.plugin.zsh
 
   zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
@@ -38,19 +66,20 @@ if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
 	# fish-like autosuggestions
 	zplugin light zsh-users/zsh-autosuggestions
 
+	zplugin ice atload'ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)'
 	zplugin light zdharma/fast-syntax-highlighting
 
-	zplugin ice blockf
+	zplugin ice blockf atload'ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=239"'
   zplugin light zsh-users/zsh-completions
+	zplugin ice atload"bindkey '^[[1;9A' history-substring-search-up; bindkey '^[[1;9B' history-substring-search-down" # alt up/down for substring search
   zplugin light zsh-users/zsh-history-substring-search
 
 	zplugin ice pick"grep_wrappers.zsh"
-	zplugin load jolan78/dotfiles
+	zplugin light jolan78/dotfiles
 	
   # themes
 	setopt promptsubst # most theme need this
   zplugin load jolan78/agnoster-zsh-theme
-
 
 	# plug-ins to try :
 	# records visited paths and use fzf/peco to choose one :
@@ -70,6 +99,7 @@ if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
 	zplugin cdreplay -q # -q is for quiet
 fi
 
+###################### theme-related functions ################
 compdef "_arguments '1:Theme:((\
 	kphoen:\"(default) works well on both clear and dark background\"\
  	gentoo\:\"classic theme\"\
@@ -93,8 +123,6 @@ function alt-prompt() {
 	# load required plugins
 	zplugin snippet OMZ::lib/git.zsh
 	zplugin snippet OMZ::plugins/git/git.plugin.zsh
-	# forget completion
-	#zplugin cdclear -q
 	#load theme
 	zplugin snippet OMZ::themes/${theme}.zsh-theme
 }
@@ -108,31 +136,12 @@ function powerline() {
 	SEGMENT_SEPARATOR="\ue0b0"
   BRANCH="\ue0a0"
 }
+
 if [[ -f ${ZDOTDIR}/.iterm2_shell_integration.zsh ]];then
   source ${ZDOTDIR}/.iterm2_shell_integration.zsh
 fi
 
 export PATH="${PATH}:${ZDOTDIR}/bin"
-
-# alt + up/down subsrting searche in history
-#if zplug check "zsh-users/zsh-history-substring-search"; then
-	bindkey '^[[1;9A' history-substring-search-up # ALT-UP
-	bindkey '^[[1;9B' history-substring-search-down # ALT-DOWN
-#fi
-# up/down search entry starting with current entry (even with spaces)
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-bindkey "^[[A" up-line-or-beginning-search # Up
-bindkey "^[[B" down-line-or-beginning-search # Down
-bindkey "^[[3~" delete-char # del
-autoload edit-command-line
-zle -N edit-command-line
-bindkey "^X^E" edit-command-line # ^X^E : edit current line in vim
-
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets)
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=239"
 
 # conserve la config vim de l'utilisateur d'origine
 export VIMINIT="let \$SSHUSER_HOME=\"$ZDOTDIR\" | so $ZDOTDIR/.vimrc | let \$MYVIMRC = \"$ZDOTDIR/.vimrc\""
@@ -176,8 +185,6 @@ setopt share_history          # share command history data
 # these two options are set by share_history:
 #setopt extended_history       # record timestamp of command in HISTFILE
 #setopt inc_append_history     # add commands to HISTFILE in order of execution
-
-bindkey '^r' history-incremental-search-backward      # [Ctrl-r] - Search backward incrementally for a specified string. The string may begin with ^ to anchor the search to the beginning of the line.
 
 
 alias glog="git log --color --decorate --graph --stat --abbrev-commit"
