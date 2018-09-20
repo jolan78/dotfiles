@@ -62,8 +62,9 @@ function {tg,gl,exgl,extg} () {
 
 	if [[ $0[-2,$] == 'gl' ]]; then
 		local grcmd='grep'
-		for local f in $files; do
-			if [[ $args[2] =~ '^.*.gz$' ]]; then
+		local f
+		for f in $files; do
+			if [[ $f =~ '\.gz$' ]]; then
 				grcmd='zgrep'
 			fi
 		done
