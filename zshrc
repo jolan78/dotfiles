@@ -102,7 +102,7 @@ if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
 	# zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme
 
 	autoload -Uz compinit
-	compinit
+	compinit -u
 
 	zplugin cdreplay -q # -q is for quiet
 fi
