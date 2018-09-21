@@ -67,10 +67,10 @@ function {tg,gl,exgl,extg} () {
 				grcmd="z${grcmd}"
 			fi
 		done
-		echo "$grcmd --color=always $gropt $pattern $files| less -R"
+		#echo "$grcmd --color=always $gropt $pattern $files| less -R"
 		$grcmd --color=always $gropt $pattern $files| less -R
 	elif [[ $0[-2,$] == 'tg' ]]; then
-		echo "tail -f $files | $grcmd --color=auto $gropt $pattern"
+		#echo "tail -f $files | $grcmd --color=auto $gropt $pattern"
 		tail -f $files | $grcmd --color=auto $gropt $pattern
 	fi
 }
