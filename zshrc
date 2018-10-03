@@ -198,7 +198,11 @@ setopt share_history          # share command history data
 alias glog="git log --color --decorate --graph --stat --abbrev-commit"
 compdef _git glog="git log"
 alias l='ls -lah'
-alias ls='ls -G'
+if $(ls --color=tty >/dev/null 2>&1);then
+	alias ls='ls --color=tty'
+else
+	alias ls='ls -G'
+fi
 alias grep='grep --color=auto --exclude-dir="{.bzr,CVS,.git,.hg,.svn}"'
 
 autoload zmv
