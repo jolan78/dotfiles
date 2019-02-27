@@ -50,7 +50,7 @@ set hlsearch
 
 " Search and show matches as you type
 set incsearch
- 
+
 " Modelines have historically been a source of security vulnerabilities.  As
 " such, it may be a good idea to disable them and use the securemodelines
 " script, <http://www.vim.org/scripts/script.php?script_id=1876>.
@@ -126,10 +126,21 @@ set mouse=a
 
 " Set the command window height to 2 lines, to avoid many cases of having to
 " "press <Enter> to continue"
-set cmdheight=2
+" set cmdheight=2
+" height = 1 works with noshowmode
+set cmdheight=1
+
+" do not show --MODE--
+set noshowmode
 
 " Display line numbers on the left
 set number
+
+" display line number at current line, and relative numbers at other lines
+set relativenumber
+
+" keep 3 lines above/below when scrolling
+set scrolloff=3
 
 " Quickly time out on keycodes, but never time out on mappings
 set notimeout ttimeout ttimeoutlen=200
@@ -179,6 +190,9 @@ nnoremap <C-L> :nohl<CR>::syntax sync fromstart<CR><C-L>
 " Map <C-@> to <C-]> (jump to tag in vim help) because it's not avail.
 nnoremap <C-@> <C-]>
 
+" cd to the current file's dir
+cmap cd. lcd %:p:h
+
 "------------------------------------------------------------
 " PHP option {{{1
 
@@ -199,12 +213,22 @@ autocmd FileType php let php_noShortTags=0
 autocmd FileType php let php_folding=1
 autocmd FileType php set iskeyword+=_,$" none of these are word dividers
 
-autocmd FileType php setlocal omnifunc=phpcomplete#CompletePHP
-
 autocmd FileType php set tabstop=4 shiftwidth=4 noexpandtab
 
 " PIV incorrectly set php functions as Identifier's
 hi def link phpFunctions        Function
+
+"------------------------------------------------------------
+" Completion
+
+"au FileType php setl ofu=phpcomplete#CompletePHP
+"au FileType ruby,eruby setl ofu=rubycomplete#Complete
+"au FileType html,xhtml setl ofu=htmlcomplete#CompleteTags
+"au FileType css setl ofu=csscomplete#CompleteCSS
+"au FileType c setl ofu=ccomplete#CompleteCpp
+"au FileType python setl ofu=pythoncomplete#Complete
+"au FileType javascript setl ofu=javascriptcomplete#CompleteJS
+
 
 "------------------------------------------------------------
 " Candy option {{{1
@@ -250,13 +274,22 @@ endif
 " tell Vim where to find the autoload function:
 set runtimepath+=$SSHUSER_HOME/.vim/bundle/Vundle.vim
 
+"----------------------------------------------------------
+" phpcomplete
+
+" not working :
+let g:phpcomplete_mappings = {
+			\ 'jump_to_def': ',g',
+			\ 'jump_to_def_tabnew': ',t',
+			\ }
+let g:phpcomplete_parse_docblock_comments = 1
+
 call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 
-
-	Plugin 'indentpython.vim'
 " let Vundle manage Vundle, required
 	Plugin 'VundleVim/Vundle.vim'
 
+	Plugin 'indentpython.vim'
 	Plugin 'elzr/vim-json'
 	Plugin 'scrooloose/nerdtree'
 	Plugin 'Maxlufs/LargeFile.vim'
@@ -265,6 +298,9 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 
 	Plugin 'vim-scripts/YankRing.vim'
 	Plugin 'spf13/PIV'
+	" PIV enbed an outdated version of phpcomplete
+	" Plugin 'shawncplus/phpcomplete.vim'
+
 	Plugin 'ervandew/supertab'
 	" CR selects current entry in popup (instead of inserting actual CR)
 	let g:SuperTabCrMapping=0
@@ -276,15 +312,17 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 	sign define QFS_QFL text=* texthl=WarningMsg linehl=WarningMsg_Bg
 	sign define QFS_LOC text=> texthl=Special linehl=Special_Bg
 
-	Plugin 'jolan78/checksyntax_vim'
-	let g:checksyntax#lines_expr = 'min([len(getloclist(0)),10])'
+	"Plugin 'jolan78/checksyntax_vim'
+	"let g:checksyntax#lines_expr = 'min([len(getloclist(0)),10])'
+
+	Plugin 'neomake/neomake'
 
 	Plugin 'jolan78/iTerm2Yank'
 	Plugin 'altercation/vim-colors-solarized'
 	Plugin 'Raimondi/delimitMate'
 	" workaround for delimitMate breaking ESC (not anymore ?) :
 	"set timeout
-	
+
 	Plugin 'matchit.zip'
 	"load this on demand only
 	"Plugin 'joonty/vdebug'
@@ -295,27 +333,49 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 	" Plugin 'tpope/vim-sleuth'
 	" Underlines the word under the cursor
 	Plugin 'itchyny/vim-cursorword'
-	
+
 	Plugin 'mbbill/undotree'
 
 	" deactivated plugins
 	"'swap_parameters' -> requires python
-	
+
 	" colorize indent guides
 	Plugin 'nathanaelkane/vim-indent-guides'
 	" interactoive shell interpreter (requires psysh)
 	Plugin 'metakirby5/codi.vim'
 	" display fn doc
-	Plugin 'Shougo/echodoc.vim'
+	if (has("patch-7.4-774"))
+		Plugin 'Shougo/echodoc.vim'
+	endif
 
 	" change args position . use :SidewaysRight
 	Plugin 'AndrewRadev/sideways.vim'
 
+	Plugin 'othree/html5.vim'
+
 	" more up to date php
-	Plugin 'StanAngeloff/php.vim'"
+	Plugin 'StanAngeloff/php.vim'
 
 	" usefull for statusline
-	Plugin 'rafi/vim-badge'
+	"Plugin 'rafi/vim-badge'
+
+	Plugin 'vim-airline/vim-airline'
+	Plugin 'vim-airline/vim-airline-themes'
+
+	Plugin 'mhinz/vim-grepper'
+
+	" Smart selection of the closest text object (enter/BS in normal mode)
+	Plugin 'gcmt/wildfire.vim'
+
+	" Vim script for text filtering and alignment (:Tabularize)
+	Plugin 'godlygeek/tabular'
+
+	" Better whitespace highlighting for Vim
+	Plugin 'ntpeters/vim-better-whitespace'
+
+	if (has("patch-7.4-2009"))
+		Plugin 'fatih/vim-go'
+	endif
 
 "	Plugin 'vim-php/tagbar-phpctags.vim'
 "	let g:tagbar_ctags_bin = 'phpctags'
@@ -327,6 +387,54 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 "	Plugin 'xolox/vim-easytags'
 call vundle#end()
 
+
+"-----------------------------------------------------------
+" neomake
+
+" open list and preserve cursor position
+let g:neomake_open_list = 2
+" when writing, reading or after change in normal/insert mode : 500ms delay
+if (has('timers'))
+	call neomake#configure#automake('nrwi', 500)
+else
+	call neomake#configure#automake('rw', 0)
+	autocmd neomake_automake InsertLeave,CursorHold * call neomake#configure#automake()
+endif
+
+" only php -l
+let g:neomake_php_enabled_makers = ['php']
+
+"-----------------------------------------------------------
+" NERDTree
+autocmd StdinReadPre * let s:std_in=1
+" open NERDTree if no file
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+" open NERDTree if directory is specified
+autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+" close vim if the only window left open is a NERDTree
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+
+"------------------------------------------------------------
+" airline option {{{1
+let g:airline_theme='solarized'
+let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#cursormode#enabled = 1
+
+let g:cursormode_mode_func = 'mode'
+let g:cursormode_color_map = {
+			\ "nlight": '#000000',
+			\ "ndark": '#BBBBBB',
+			\ "i": g:airline#themes#{g:airline_theme}#palette.insert.airline_a[1],
+			\ "R": g:airline#themes#{g:airline_theme}#palette.replace.airline_a[1],
+			\ "v": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
+			\ "V": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
+			\ "\<C-V>": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1]
+			\ }
+
+nmap <leader>- <Plug>AirlineSelectPrevTab
+nmap <leader>+ <Plug>AirlineSelectNextTab
+
 "------------------------------------------------------------
 " solarized option {{{1
 let g:solarized_termcolors=256
@@ -335,93 +443,15 @@ set background=dark
 colorscheme solarized
 " change function color to yellow
 hi Function cterm=bold ctermfg=136
+hi PmenuSel ctermbg=white ctermfg=darkblue
 
 " vim-indent-guides {{{1
 let g:indent_guides_auto_colors = 0
-"autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=black   ctermbg=black
-"autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=darkgrey ctermbg=darkgrey
 hi IndentGuidesOdd  ctermbg=234
 hi IndentGuidesEven ctermbg=235
 let g:indent_guides_guide_size=1
 
 autocmd FileType php IndentGuidesEnable
-autocmd FileType php EchoDocEnable
-
-" statusline
-"
-" badge is autoloaded. we must call it before testing existance
-silent! call badge#root()
-if exists('*badge#root')
-	" Statusline {{{
-	let s:stl  = " %7*%{&paste ? '=' : ''}%*"         " Paste symbol
-	let s:stl .= "%4*%{&readonly ? '' : '#'}%*"       " Modifide symbol
-	let s:stl .= "%6*%{badge#mode('⚠', 'Z')}"         " Readonly symbol
-	let s:stl .= '%*%n'                               " Buffer number
-	let s:stl .= "%6*%{badge#modified('+')}%0*"       " Write symbol
-	let s:stl .= ' %1*%{badge#filename()}%*'          " Filename
-	let s:stl .= ' %<'                                " Truncate here
-	let s:stl .= '%( %{badge#branch()} %)'           " Git branch name
-	let s:stl .= "%4*%(%{badge#trails('WS:%s')} %)"  " Whitespace
-	"let s:stl .= '%(%{badge#syntax()} %)%*'           " syntax check (requires
-	"neomake/syntastic)
-	let s:stl .= '%='                                 " Align to right
-	let s:stl .= '%{badge#format()} %4*%*'           " File format
-	let s:stl .= '%( %{&fenc} %)'                     " File encoding
-	let s:stl .= '%4*%*%( %{&ft} %)'                 " File type
-	let s:stl .= '%3*%2* %l/%-2c %3b/0x%-2B %4p%% '               " Line and column
-	let s:stl .= '%{badge#indexing()}%*'              " Indexing tags indicator
-
-	" Non-active Statusline {{{
-	let s:stl_nc = " %{badge#mode('⚠', 'Z')}%n"    " Readonly & buffer
-	let s:stl_nc .= "%6*%{badge#modified('+')}%*"  " Write symbol
-	let s:stl_nc .= ' %{badge#filename()}'         " Relative supername
-	let s:stl_nc .= '%='                           " Align to right
-	let s:stl_nc .= '%{&ft} '                      " File type
-	" Toggle Statusline {{{
-	augroup statusline
-		autocmd!
-		autocmd FileType,WinEnter,BufWinEnter,BufReadPost *
-			\ if &filetype !~? s:disable_statusline
-			\ | let &l:statusline = s:stl
-			\ | endif
-		autocmd WinLeave *
-			\ if &filetype !~? s:disable_statusline
-			\ | let &l:statusline = s:stl_nc
-			\ | endif
-	augroup END "}}}
-else
-	function! SLReadOnly()
-		if(&ro)
-			return '✗'
-		else
-			return ''
-		endif
-	endf
-	set statusline=%<%F\ %m%#Error#%{SLReadOnly()}%#StatusLine#%=C:%b/0x%B\ %l,%c\ %P%h\ %y[%{&fenc}/%{&ff}]
-endif
-" }}}
-
-" Highlights: Statusline {{{
-highlight StatusLine   ctermfg=236 ctermbg=248 guifg=#30302c guibg=#a8a897
-highlight StatusLineNC ctermfg=236 ctermbg=242 guifg=#30302c guibg=#666656
-
-" Filepath color
-highlight User1 guifg=#D7D7BC guibg=#30302c ctermfg=251 ctermbg=236
-" Line and column information
-highlight User2 guifg=#a8a897 guibg=#4e4e43 ctermfg=248 ctermbg=239
-" Line and column corner arrow
-highlight User3 guifg=#4e4e43 guibg=#30302c ctermfg=239 ctermbg=236
-" Buffer # symbol and whitespace or syntax errors
-highlight User4 guifg=#666656 guibg=#30302c ctermfg=242 ctermbg=236
-" Write symbol
-highlight User6 guifg=#cf6a4c guibg=#30302c ctermfg=167 ctermbg=236
-" Paste symbol
-highlight User7 guifg=#99ad6a guibg=#30302c ctermfg=107 ctermbg=236
-" Syntax and whitespace
-highlight User8 guifg=#ffb964 guibg=#30302c ctermfg=215 ctermbg=236
-" }}}
-
-let s:disable_statusline =
-	\ 'denite\|unite\|vimfiler\|tagbar\|nerdtree\|undotree\|gundo\|diff\|peekaboo\|sidemenu'
-" }}}
+let g:echodoc_enable_at_startup = 1
+"autocmd FileType php EchoDocEnable
 
