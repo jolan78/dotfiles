@@ -151,6 +151,16 @@ fi
 
 export PATH="${PATH}:${ZDOTDIR}/bin"
 
+# iterm2 detection
+if [[ ${+TERM_PROGRAM} == '0' ]]; then
+	export TERM_PROGRAM=
+	if type it2check > /dev/null; then
+		if it2check; then
+			export TERM_PROGRAM=iTerm.app
+		fi
+	fi
+fi
+
 # conserve la config vim de l'utilisateur d'origine
 export VIMINIT="let \$SSHUSER_HOME=\"$ZDOTDIR\" | so $ZDOTDIR/.vimrc | let \$MYVIMRC = \"$ZDOTDIR/.vimrc\""
 # remplace su par une version qui conserve le shell de l'utilisateur d'origine

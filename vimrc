@@ -425,6 +425,7 @@ let g:cursormode_mode_func = 'mode'
 let g:cursormode_color_map = {
 			\ "nlight": '#000000',
 			\ "ndark": '#BBBBBB',
+			\ "n": g:airline#themes#{g:airline_theme}#palette.normal.airline_a[1],
 			\ "i": g:airline#themes#{g:airline_theme}#palette.insert.airline_a[1],
 			\ "R": g:airline#themes#{g:airline_theme}#palette.replace.airline_a[1],
 			\ "v": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
