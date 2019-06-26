@@ -8,6 +8,7 @@
 " have made, as well as sanely reset options when re-sourcing .vimrc
 set nocompatible
 
+
 " Attempt to determine the type of a file based on its name and possibly its
 " contents.  Use this to allow intelligent auto-indenting for each filetype,
 " and for plugins that are filetype specific.
@@ -296,7 +297,10 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 	" size in MB
 	let g:LargeFile=5
 
+	Plugin 'machakann/vim-highlightedyank'
 	Plugin 'vim-scripts/YankRing.vim'
+ let g:yankring_window_use_horiz = 0 
+
 	Plugin 'spf13/PIV'
 	" PIV enbed an outdated version of phpcomplete
 	" Plugin 'shawncplus/phpcomplete.vim'
@@ -319,9 +323,12 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 
 	Plugin 'jolan78/iTerm2Yank'
 	Plugin 'altercation/vim-colors-solarized'
+
+	" breaks repat (.)
 	Plugin 'Raimondi/delimitMate'
-	" workaround for delimitMate breaking ESC (not anymore ?) :
-	"set timeout
+	" breaks '.' repeat until vim 7.4.849
+	" default mappings for advanced fns conflicts macos alt chars
+	"Plugin 'jiangmiao/auto-pairs'
 
 	Plugin 'matchit.zip'
 	"load this on demand only
@@ -347,6 +354,19 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 	if (has("patch-7.4-774"))
 		Plugin 'Shougo/echodoc.vim'
 	endif
+	if (has("patch-7.4-1578"))
+		Plugin 'yuttie/comfortable-motion.vim'
+	endif
+	" auto set paste on fast input
+	if (!has("patch-8.0-0210"))
+		Plugin 'roxma/vim-paste-easy'
+	endif
+	"Plugin 'ConradIrwin/vim-bracketed-paste'
+	if executable('ag')
+		let g:ackprg = 'ag --vimgrep'
+		Plugin 'mileszs/ack.vim'
+	endif
+
 
 	" change args position . use :SidewaysRight
 	Plugin 'AndrewRadev/sideways.vim'
@@ -419,19 +439,21 @@ autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isT
 let g:airline_theme='solarized'
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
+"let g:airline#extensions#tabline#show_tabs=1
+let g:airline#extensions#tabline#buffer_nr_show =1
 let g:airline#extensions#cursormode#enabled = 1
 
 let g:cursormode_mode_func = 'mode'
 let g:cursormode_color_map = {
-			\ "nlight": '#000000',
-			\ "ndark": '#BBBBBB',
-			\ "n": g:airline#themes#{g:airline_theme}#palette.normal.airline_a[1],
-			\ "i": g:airline#themes#{g:airline_theme}#palette.insert.airline_a[1],
-			\ "R": g:airline#themes#{g:airline_theme}#palette.replace.airline_a[1],
-			\ "v": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
-			\ "V": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
-			\ "\<C-V>": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1]
-			\ }
+	 \ "nlight": '#000000',
+	 \ "ndark": '#BBBBBB',
+	 \ "n": g:airline#themes#{g:airline_theme}#palette.normal.airline_a[1],
+	 \ "i": g:airline#themes#{g:airline_theme}#palette.insert.airline_a[1],
+	 \ "R": g:airline#themes#{g:airline_theme}#palette.replace.airline_a[1],
+	 \ "v": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
+	 \ "V": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
+	 \ "\<C-V>": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1]
+	 \ }
 
 nmap <leader>- <Plug>AirlineSelectPrevTab
 nmap <leader>+ <Plug>AirlineSelectNextTab
