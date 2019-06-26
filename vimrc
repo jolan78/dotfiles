@@ -358,9 +358,10 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 		Plugin 'yuttie/comfortable-motion.vim'
 	endif
 	" auto set paste on fast input
-	if (!has("patch-8.0-0210"))
-		Plugin 'roxma/vim-paste-easy'
-	endif
+	" breaks delimitmate
+	"if (!has("patch-8.0-0210"))
+	"	Plugin 'roxma/vim-paste-easy'
+	"endif
 	"Plugin 'ConradIrwin/vim-bracketed-paste'
 	if executable('ag')
 		let g:ackprg = 'ag --vimgrep'
