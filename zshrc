@@ -30,6 +30,8 @@ zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search # Up
 bindkey "${terminfo[kcud1]}" down-line-or-beginning-search # Down
+#bindkey "^^" _history-complete-newer #Ctrl-^
+#bindkey "^]" _history-complete-older # Ctrl-$
 bindkey '^[b' emacs-backward-word # alt-left
 bindkey '^[f' emacs-forward-word # alt-right
 bindkey "^A" beginning-of-line
@@ -82,9 +84,13 @@ if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
 	zplugin ice atload"bindkey '^[[1;9A' history-substring-search-up; bindkey '^[[1;9B' history-substring-search-down" # alt up/down for substring search
   zplugin light zsh-users/zsh-history-substring-search
 
+	#zplugin ice pick"sqlite-history.zsh" src"histdb-interactive.zsh"
+	#zplugin load larkery/zsh-histdb
+	zplugin light psprint/zsh-cmd-architect
+
 	zplugin ice pick"grep_wrappers.zsh"
 	zplugin light jolan78/dotfiles
-	
+
   # themes
 	setopt promptsubst # most theme need this
   zplugin load jolan78/agnoster-zsh-theme
@@ -162,7 +168,8 @@ if [[ ${+TERM_PROGRAM} == '0' ]]; then
 fi
 
 # conserve la config vim de l'utilisateur d'origine
-export VIMINIT="let \$SSHUSER_HOME=\"$ZDOTDIR\" | so $ZDOTDIR/.vimrc | let \$MYVIMRC = \"$ZDOTDIR/.vimrc\""
+alias vim="vim -u $ZDOTDIR/.vimrc"
+#export VIMINIT="let \$SSHUSER_HOME=\"$ZDOTDIR\" | so $ZDOTDIR/.vimrc | let \$MYVIMRC = \"$ZDOTDIR/.vimrc\""
 # remplace su par une version qui conserve le shell de l'utilisateur d'origine
 if [ "`uname`" = "Darwin" ]; then
   alias su="sudo -s";

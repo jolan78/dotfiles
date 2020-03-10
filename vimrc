@@ -8,19 +8,39 @@
 " have made, as well as sanely reset options when re-sourcing .vimrc
 set nocompatible
 
-
 " Attempt to determine the type of a file based on its name and possibly its
 " contents.  Use this to allow intelligent auto-indenting for each filetype,
 " and for plugins that are filetype specific.
 filetype indent plugin on
 
 " Enable syntax highlighting
-syntax on
+" with php, syntax enable + foldmethod=syntax is really slow
+syntax enable
 
-" highlight cursor line
-set cursorline
 
-let mapleader = ","
+"--------------------------------------------------------
+" Paths {{{1
+"
+let s:configroot = expand('<sfile>:p:h')
+
+let &runtimepath = &runtimepath.','.s:configroot.'/.vim/'
+
+set backup " make backup files
+if !isdirectory($HOME."/.vim_backup/")
+    call mkdir($HOME.'/.vim_backup')
+endif
+set backupdir=$HOME/.vim_backup " where to put backup files
+if !isdirectory($HOME.'/.vim_swp/')
+    call mkdir($HOME.'/.vim_swp')
+endif
+set directory=$HOME/.vim_swp " directory to place swap files in
+
+" Don't write backup file if vim is being called by "crontab -e"
+autocmd BufWrite /private/tmp/crontab.* set nowritebackup
+" Don't write backup file if vim is being called by "chpass"
+autocmd BufWrite /private/etc/pw.* set nowritebackup
+autocmd BufWrite /etc/pw.* set nowritebackup
+
 "------------------------------------------------------------
 " Must have options {{{1
 "
@@ -55,23 +75,8 @@ set incsearch
 " Modelines have historically been a source of security vulnerabilities.  As
 " such, it may be a good idea to disable them and use the securemodelines
 " script, <http://www.vim.org/scripts/script.php?script_id=1876>.
-" set nomodeline
+set nomodeline
 
-set backup " make backup files
-if !isdirectory($HOME."/.vim_backup/")
-    call mkdir($HOME.'/.vim_backup')
-endif
-set backupdir=$HOME/.vim_backup " where to put backup files
-if !isdirectory($HOME.'/.vim_swp/')
-    call mkdir($HOME.'/.vim_swp')
-endif
-set directory=$HOME/.vim_swp " directory to place swap files in
-
-" Don't write backup file if vim is being called by "crontab -e"
-au BufWrite /private/tmp/crontab.* set nowritebackup
-" Don't write backup file if vim is being called by "chpass"
-au BufWrite /private/etc/pw.* set nowritebackup
-au BufWrite /etc/pw.* set nowritebackup
 
 "------------------------------------------------------------
 " Usability options {{{1
@@ -158,6 +163,10 @@ set completeopt=longest,menuone,preview
 " enter = select menu entry (instead of CR)
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 
+" highlight code blocks in markdown
+let g:markdown_fenced_languages = ['html', 'css', 'scss', 'sql', 'javascript', 'go', 'python', 'bash=sh', 'c', 'ruby','php']
+let g:markdown_syntax_conceal = 1
+
 "------------------------------------------------------------
 " Indentation options {{{1
 "
@@ -180,6 +189,8 @@ set tabstop=2
 "
 " Useful mappings
 
+let mapleader = ","
+
 " Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
 " which is the default
 " map Y y$
@@ -200,42 +211,54 @@ cmap cd. lcd %:p:h
 " indent the '{' and '}' at the same
 " level than the code they contain.
 let PHP_BracesAtCodeLevel = 1
-
-" Set PHP file extensions
-au BufNewFile,BufRead *.php              setf php.html
-
 "  highlights interpolated variables in sql strings and does sql-syntax highlighting. yay
-autocmd FileType php let php_sql_query=1
+let php_sql_query=1
 " does exactly that. highlights html inside of php strings
-autocmd FileType php let php_htmlInStrings=1
+let php_htmlInStrings=1
 " discourages use of short tags. c'mon its deprecated remember
-autocmd FileType php let php_noShortTags=0
-" automagically folds functions & methods. this is getting IDE-like isn't it?
-autocmd FileType php let php_folding=1
-autocmd FileType php set iskeyword+=_,$" none of these are word dividers
+let php_noShortTags=0
 
-autocmd FileType php set tabstop=4 shiftwidth=4 noexpandtab
+augroup php_conf
+	autocmd!
+	autocmd FileType php setlocal iskeyword+=_,$" none of these are word dividers
 
-" PIV incorrectly set php functions as Identifier's
-hi def link phpFunctions        Function
+	autocmd FileType php setlocal tabstop=4 shiftwidth=4 noexpandtab
+
+	" Set PHP file extensions
+	"autocmd BufNewFile,BufRead *.php              setf php.html
+
+	" automagically folds functions & methods. this is getting IDE-like isn't it?
+	" this is really slow :
+	"let php_folding=1
+	" workaround : fold on indent and start with all folds open
+	autocmd FileType php setlocal foldmethod=indent
+	autocmd FileType php setlocal foldlevel=99
+augroup END
 
 "------------------------------------------------------------
-" Completion
+" PIV / phpcomplete.vim options {{{2
 
-"au FileType php setl ofu=phpcomplete#CompletePHP
-"au FileType ruby,eruby setl ofu=rubycomplete#Complete
-"au FileType html,xhtml setl ofu=htmlcomplete#CompleteTags
-"au FileType css setl ofu=csscomplete#CompleteCSS
-"au FileType c setl ofu=ccomplete#CompleteCpp
-"au FileType python setl ofu=pythoncomplete#Complete
-"au FileType javascript setl ofu=javascriptcomplete#CompleteJS
+" not working :
+let g:phpcomplete_mappings = {
+			\ 'jump_to_def': ',g',
+			\ 'jump_to_def_tabnew': ',t',
+			\ }
+let g:phpcomplete_parse_docblock_comments = 1
+
+"------------------------------------------------------------
+" Completion : omni examples {{{1
+
+"autocmd FileType php setl ofu=phpcomplete#CompletePHP
+"autocmd FileType ruby,eruby setl ofu=rubycomplete#Complete
+"autocmd FileType html,xhtml setl ofu=htmlcomplete#CompleteTags
+"autocmd FileType css setl ofu=csscomplete#CompleteCSS
+"autocmd FileType c setl ofu=ccomplete#CompleteCpp
+"autocmd FileType python setl ofu=pythoncomplete#Complete
+"autocmd FileType javascript setl ofu=javascriptcomplete#CompleteJS
 
 
 "------------------------------------------------------------
 " Candy option {{{1
-if $SSHUSER_HOME != ""
-	set runtimepath+=$SSHUSER_HOME/.vim/
-endif
 
 set list " we do what to show tabs etc
 set listchars=tab:\ \ ,trail:.
@@ -246,22 +269,27 @@ set showmatch " show matching brackets when inserting
 " automatically.
 set formatoptions+=c
 
+" highlight cursor line
+set cursorline
+
 "------------------------------------------------------------
-" Vundle option {{{1
-" check if Vundle is installed
-if $SSHUSER_HOME == ""
-	echo "SSHUSER_HOME n'est pas défini."
-	echo "executez ceci pour l'ajouter à .bashrc"
-	echo "echo 'export VIMINIT=\"let \\\$SSHUSER_HOME=\\\"$HOME\\\" | so \$HOME/.vimrc | let \\\$MYVIMRC = \\\"$HOME/.vimrc\\\"\"' >> ~/.bashrc"
-	finish
+" Plugins {{{1
+"
+" Plugin manager init & auto-install {{{2
+
+"if $SSHUSER_HOME == ""
+"	echo "SSHUSER_HOME n'est pas défini."
+"	echo "executez ceci pour l'ajouter à .bashrc"
+"	echo "echo 'export VIMINIT=\"let \\\$SSHUSER_HOME=\\\"$HOME\\\" | so \$HOME/.vimrc | let \\\$MYVIMRC = \\\"$HOME/.vimrc\\\"\"' >> ~/.bashrc"
+"	finish
+"endif
+if !isdirectory(s:configroot.'/.vim/plugged/')
+  call mkdir(s:configroot.'/.vim/plugged/','p')
 endif
-if !isdirectory($SSHUSER_HOME.'/.vim/bundle/')
-  call mkdir($SSHUSER_HOME.'/.vim/bundle/','p')
-endif
-if !isdirectory($SSHUSER_HOME."/.vim/bundle/Vundle.vim")
-  echo "installing Vundle..."
+if !filereadable(s:configroot."/.vim/autoload/plug.vim")
+  echo "installing vim-plug..."
   try
-		!git clone https://github.com/VundleVim/Vundle.vim.git $SSHUSER_HOME/.vim/bundle/Vundle.vim
+	  !curl -fLo s:configroot.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     if v:shell_error
       echo "exiting"
       quit
@@ -272,131 +300,175 @@ if !isdirectory($SSHUSER_HOME."/.vim/bundle/Vundle.vim")
   endtry
 endif
 
-" tell Vim where to find the autoload function:
-set runtimepath+=$SSHUSER_HOME/.vim/bundle/Vundle.vim
 
-"----------------------------------------------------------
-" phpcomplete
+call plug#begin(s:configroot.'/.vim/plugged')
 
-" not working :
-let g:phpcomplete_mappings = {
-			\ 'jump_to_def': ',g',
-			\ 'jump_to_def_tabnew': ',t',
-			\ }
-let g:phpcomplete_parse_docblock_comments = 1
 
-call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
+	"----------------------------------------
+	" Language-specific plugins {{{2
+	Plug 'othree/html5.vim'
+	Plug 'elzr/vim-json',{'for':'json'}
+	Plug 'posva/vim-vue',{'for':['vue','js','php','php.html']}
+	Plug 'vim-scripts/indentpython.vim',{'for':'py'}
 
-" let Vundle manage Vundle, required
-	Plugin 'VundleVim/Vundle.vim'
+	"Plug 'lvht/phpcd.vim', { 'for': ['php','php.html']}
+	"Plugin 'spf13/PIV'
+	"Plugin 'shawncplus/phpcomplete.vim'
 
-	Plugin 'indentpython.vim'
-	Plugin 'elzr/vim-json'
-	Plugin 'scrooloose/nerdtree'
-	Plugin 'Maxlufs/LargeFile.vim'
-	" size in MB
-	let g:LargeFile=5
+	"load this on demand only with :PlugStatus then L
+	Plug 'joonty/vdebug',{'for':[]}
 
-	Plugin 'machakann/vim-highlightedyank'
-	Plugin 'vim-scripts/YankRing.vim'
- let g:yankring_window_use_horiz = 0 
+	" more up to date php; allow folding and sql/html in php
+	Plug 'StanAngeloff/php.vim'
+	" available in stock vim, but brace at code level is broken since 3db7a43
+	Plug '2072/PHP-Indenting-for-VIm', {'commit':'1d33045'}
+	if (has("patch-8.0.1453"))
+		Plug 'fatih/vim-go',{'for':'go'}
+	endif
 
-	Plugin 'spf13/PIV'
-	" PIV enbed an outdated version of phpcomplete
-	" Plugin 'shawncplus/phpcomplete.vim'
+	"----------------------------------------
+	" LSP plugins {{{2
+	
+	"Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-	Plugin 'ervandew/supertab'
-	" CR selects current entry in popup (instead of inserting actual CR)
-	let g:SuperTabCrMapping=0
-	let g:SuperTabDefaultCompletionType = "context"
-	let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+	Plug 'dense-analysis/ale'
 
-	Plugin 'tomtom/quickfixsigns_vim'
-	let g:quickfixsigns_classes = [ 'qfl', 'loc', 'marks', 'vcsdiff']
-	sign define QFS_QFL text=* texthl=WarningMsg linehl=WarningMsg_Bg
-	sign define QFS_LOC text=> texthl=Special linehl=Special_Bg
+	" vim-lsp depends on ascync on vim8
+	"Plug 'prabirshrestha/async.vim'
+	"Plug 'prabirshrestha/vim-lsp'
+	" provides :LspInstall
+	"Plug 'mattn/vim-lsp-settings'
 
-	"Plugin 'jolan78/checksyntax_vim'
-	"let g:checksyntax#lines_expr = 'min([len(getloclist(0)),10])'
+	" vim-lsp rely on ascynccomplete for autocompletion
+	"Plug 'prabirshrestha/asyncomplete.vim'
+	"Plug 'prabirshrestha/asyncomplete-lsp.vim'
+	
+	" Viewer & Finder for LSP symbols and tags
+	" invoke with :Vista vim-lsp (or another lsp plugin)
+	" deactivated because it complains if ctags is not installed
+	"Plug 'liuchengxu/vista.vim'
 
-	Plugin 'neomake/neomake'
+	" Others {{{3
+	"Plug 'neomake/neomake'
 
-	Plugin 'jolan78/iTerm2Yank'
-	Plugin 'altercation/vim-colors-solarized'
-
-	" breaks repat (.)
-	Plugin 'Raimondi/delimitMate'
-	" breaks '.' repeat until vim 7.4.849
-	" default mappings for advanced fns conflicts macos alt chars
-	"Plugin 'jiangmiao/auto-pairs'
-
-	Plugin 'matchit.zip'
-	"load this on demand only
-	"Plugin 'joonty/vdebug'
-	"
+	"----------------------------------------
+	" UI Plugins {{{2
+	Plug 'scrooloose/nerdtree'
+	Plug 'Xuyuanp/nerdtree-git-plugin'
+	Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+	Plug 'tomtom/quickfixsigns_vim'
+		let g:quickfixsigns_classes = [ 'qfl', 'loc', 'marks', 'vcsdiff']
+		"sign define QFS_QFL text=* texthl=WarningMsg linehl=WarningMsg_Bg
+		"sign define QFS_LOC text=> texthl=Special linehl=Special_Bg
+		"
 	" sidebar w/ registers when pasting
-	Plugin 'junegunn/vim-peekaboo'
-	" Heuristically set buffer options
-	" Plugin 'tpope/vim-sleuth'
-	" Underlines the word under the cursor
-	Plugin 'itchyny/vim-cursorword'
+	Plug 'junegunn/vim-peekaboo'
 
-	Plugin 'mbbill/undotree'
-
-	" deactivated plugins
-	"'swap_parameters' -> requires python
-
+	Plug 'altercation/vim-colors-solarized'
+	Plug 'vim-airline/vim-airline'
+	Plug 'vim-airline/vim-airline-themes'
+	" :UndotreeToggle pour afficher
+	Plug 'mbbill/undotree'
 	" colorize indent guides
-	Plugin 'nathanaelkane/vim-indent-guides'
-	" interactoive shell interpreter (requires psysh)
-	Plugin 'metakirby5/codi.vim'
-	" display fn doc
-	if (has("patch-7.4-774"))
-		Plugin 'Shougo/echodoc.vim'
+	Plug 'nathanaelkane/vim-indent-guides'
+	" Better whitespace highlighting for Vim (red tailing sp.)
+	Plug 'ntpeters/vim-better-whitespace'
+
+	"----------------------------------------
+	" Usability {{{2
+	Plug 'machakann/vim-highlightedyank'
+
+	Plug 'vim-scripts/YankRing.vim'
+	let g:yankring_window_use_horiz = 0 
+
+	if(!exists("g:plugs['coc.nvim']"))
+		Plug 'ervandew/supertab'
+			" CR selects current entry in popup (instead of inserting actual CR)
+			let g:SuperTabCrMapping=0
+			let g:SuperTabDefaultCompletionType = "context"
+			let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
 	endif
+	Plug 'jolan78/iTerm2Yank'
+
+	" auto-completion for quotes, parens, brackets, etc.
+	"Plug 'Raimondi/delimitMate'
+	" breaks '.' repeat until vim 7.4.849
+
+	" like delimitmate. default mappings for advanced fns conflicts macos alt chars
+	" fast frap next word in pairs
+	let g:AutoPairsShortcutFastWrap='<C-f>'
+	autocmd FileType vim let b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", '`':'`'}
+	Plug 'jiangmiao/auto-pairs'
+
+	" extended % matching for HTML, LaTeX, and many other languages
+	Plug 'vim-scripts/matchit.zip'
+	" Underlines the word under the cursor
+	Plug 'itchyny/vim-cursorword'
 	if (has("patch-7.4-1578"))
-		Plugin 'yuttie/comfortable-motion.vim'
-	endif
-	" auto set paste on fast input
-	" breaks delimitmate
-	"if (!has("patch-8.0-0210"))
-	"	Plugin 'roxma/vim-paste-easy'
-	"endif
-	"Plugin 'ConradIrwin/vim-bracketed-paste'
-	if executable('ag')
-		let g:ackprg = 'ag --vimgrep'
-		Plugin 'mileszs/ack.vim'
+		"physics-based smooth scrolling
+		Plug 'yuttie/comfortable-motion.vim'
 	endif
 
+	" display fn doc. coc implements it
+	if (has("patch-7.4-774") && !exists("g:plugs['coc.nvim']"))
+		Plug 'Shougo/echodoc.vim'
+	endif
+
+	"----------------------------------------
+	" Generic plugins {{{2
+	Plug 'Maxlufs/LargeFile.vim'
+		" size in MB
+		let g:LargeFile=5
+
+	" Vim script for text filtering and alignment (:Tabularize)
+	Plug 'godlygeek/tabular'
 
 	" change args position . use :SidewaysRight
-	Plugin 'AndrewRadev/sideways.vim'
+	Plug 'AndrewRadev/sideways.vim'
 
-	Plugin 'othree/html5.vim'
+	if executable('ag')
+		let g:ackprg = 'ag --vimgrep'
+		" :Ack pour chercher
+		Plug 'mileszs/ack.vim'
+	endif
 
-	" more up to date php
-	Plugin 'StanAngeloff/php.vim'
+	" Use :Grepper to open a prompt
+	Plug 'mhinz/vim-grepper'
+
+	" auto set paste on fast input for old vims
+	" breaks delimitmate
+	if (!has("patch-8.0-0210"))
+		" breaks auto-pairs if too fast
+		"Plug 'roxma/vim-paste-easy'
+	endif
+
+	" secure alternative to modeline
+	" see https://www.vim.org/scripts/script.php?script_id=1876
+	Plug 'ciaranm/securemodelines'
+
+	"----------------------------------------
+	" Disabled plugins {{{2
+
+	" Heuristically set buffer options
+	" Plugin 'tpope/vim-sleuth'
+
+	"'swap_parameters' -> requires python
+
+	" interactoive shell interpreter (requires psysh)
+	" Plug 'metakirby5/codi.vim'
+	"
+	"Plugin 'ConradIrwin/vim-bracketed-paste'
+
+
+
 
 	" usefull for statusline
 	"Plugin 'rafi/vim-badge'
 
-	Plugin 'vim-airline/vim-airline'
-	Plugin 'vim-airline/vim-airline-themes'
-
-	Plugin 'mhinz/vim-grepper'
-
 	" Smart selection of the closest text object (enter/BS in normal mode)
-	Plugin 'gcmt/wildfire.vim'
+	"Plug 'gcmt/wildfire.vim'
 
-	" Vim script for text filtering and alignment (:Tabularize)
-	Plugin 'godlygeek/tabular'
 
-	" Better whitespace highlighting for Vim
-	Plugin 'ntpeters/vim-better-whitespace'
-
-	if (has("patch-7.4-2009"))
-		Plugin 'fatih/vim-go'
-	endif
 
 "	Plugin 'vim-php/tagbar-phpctags.vim'
 "	let g:tagbar_ctags_bin = 'phpctags'
@@ -406,76 +478,286 @@ call vundle#begin($SSHUSER_HOME.'/.vim/bundle')
 "let g:easytags_cmd = '/Users/joseph/bin/phpctags'
 "	Plugin 'xolox/vim-misc'
 "	Plugin 'xolox/vim-easytags'
-call vundle#end()
-
-
-"-----------------------------------------------------------
-" neomake
-
-" open list and preserve cursor position
-let g:neomake_open_list = 2
-" when writing, reading or after change in normal/insert mode : 500ms delay
-if (has('timers'))
-	call neomake#configure#automake('nrwi', 500)
-else
-	call neomake#configure#automake('rw', 0)
-	autocmd neomake_automake InsertLeave,CursorHold * call neomake#configure#automake()
-endif
-
-" only php -l
-let g:neomake_php_enabled_makers = ['php']
+	call plug#end()
 
 "-----------------------------------------------------------
-" NERDTree
-autocmd StdinReadPre * let s:std_in=1
-" open NERDTree if no file
-autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-" open NERDTree if directory is specified
-autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
-" close vim if the only window left open is a NERDTree
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+" Plugins configuration {{{1
+
+"-----------------------------------------------------------
+try
+	" neomake {{{2
+	if(exists("g:plugs['neomake']"))
+		" open list and preserve cursor position
+		let g:neomake_open_list = 2
+		" when writing, reading or after change in normal/insert mode : 500ms delay
+		if (has('timers'))
+			call neomake#configure#automake('nrwi', 500)
+		else
+			call neomake#configure#automake('rw', 0)
+			autocmd neomake_automake InsertLeave,CursorHold * call neomake#configure#automake()
+		endif
+
+		" only php -l
+		let g:neomake_php_enabled_makers = ['php']
+	endif
+
+	"-----------------------------------------------------------
+	" NERDTree {{{2
+	if(exists("g:plugs['nerdtree']"))
+		autocmd StdinReadPre * let s:std_in=1
+		" open NERDTree if no file
+		autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+		" open NERDTree if directory is specified
+		autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
+		" close vim if the only window left open is a NERDTree
+		"autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+		function! NERDTreeQuit()
+			" vim is still starting
+			if (!v:vim_did_enter)
+				return
+			endif
+			redir => buffersoutput
+			silent buffers
+			redir END
+			"                    1BufNo  2Mods.     3File         4LineNo
+			let pattern = '^\s*\(\d\+\)\(.....\) "\(.*\)"\s\+.* \(\d\+\)$'
+			let windowfound = 0
+
+			for bline in split(buffersoutput, "\n")
+				let m = matchlist(bline, pattern)
+				if (len(m) > 0)
+					"           active mofifiable,    running job,       modified
+					if (m[2] =~ '..a[^-].' || m[2] =~ '...R.' || m[2] =~ '....\\+')
+						let windowfound = 1
+					endif
+				endif
+			endfor
+
+			if (!windowfound)
+				quitall
+			endif
+		endfunction
+		autocmd BufEnter * call NERDTreeQuit()
+
+		" vim-nerdtree-syntax-highlight
+		let g:NERDTreeFileExtensionHighlightFullName = 1
+		let g:NERDTreeExactMatchHighlightFullName = 1
+		let g:NERDTreePatternMatchHighlightFullName = 1
+		let g:NERDTreeHighlightFolders = 1 " enables folder icon highlighting using exact match
+		let g:NERDTreeHighlightFoldersFullName = 1 " highlights the folder name
+		let g:NERDTreeExtensionHighlightColor = {} "this line is needed to avoid error
+		let g:NERDTreeExtensionHighlightColor['vue']='42b883'
+
+	endif
+	"------------------------------------------------------------
+	" airline {{{2
+	if(exists("g:plugs['vim-airline']"))
+		let g:airline_theme='solarized'
+		let g:airline_powerline_fonts = 1
+		let g:airline#extensions#tabline#enabled = 1
+		"let g:airline#extensions#tabline#show_tabs=1
+		let g:airline#extensions#tabline#buffer_nr_show =1
+		let g:airline#extensions#whitespace#enabled = 0
+		let g:airline#extensions#cursormode#enabled = 1
+
+		let g:cursormode_mode_func = 'mode'
+		let g:cursormode_color_map = {
+					\ "nlight": '#000000',
+					\ "ndark": '#BBBBBB',
+					\ "n": g:airline#themes#{g:airline_theme}#palette.normal.airline_a[1],
+					\ "i": g:airline#themes#{g:airline_theme}#palette.insert.airline_a[1],
+					\ "R": g:airline#themes#{g:airline_theme}#palette.replace.airline_a[1],
+					\ "v": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
+					\ "V": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
+					\ "\<C-V>": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1]
+					\ }
+
+		nmap <leader>- <Plug>AirlineSelectPrevTab
+		nmap <leader>+ <Plug>AirlineSelectNextTab
+	endif
+	"------------------------------------------------------------
+	" solarized {{{2
+	if(exists("g:plugs['vim-colors-solarized']"))
+		let g:solarized_termcolors=256
+		" with php, syntax enable + foldmethod=syntax is really slow
+		"syntax enable
+
+		set background=dark
+		colorscheme solarized
+		" change function color to yellow
+		hi Function cterm=bold ctermfg=136
+		hi PmenuSel ctermbg=white ctermfg=darkblue
+	endif
+
+	"------------------------------------------------------------
+	" vim-indent-guides {{{2 
+	if(exists("g:plugs['vim-indent-guides']"))
+		let g:indent_guides_auto_colors = 0
+		hi IndentGuidesOdd  ctermbg=234
+		hi IndentGuidesEven ctermbg=235
+		let g:indent_guides_guide_size=1
+
+		autocmd FileType php IndentGuidesEnable
+		let g:echodoc_enable_at_startup = 1
+		"autocmd FileType php EchoDocEnable
+	endif
+	"------------------------------------------------------------
+	"  Coc {{{2
+	if(exists("g:plugs['coc.nvim']"))
+		if executable('npm')
+			"let g:airline#extensions#coc#enabled = 1
+			let g:coc_config=s:configroot.'/.vim/coc-settings.json'
+			let g:coc_data_home=s:configroot.'/.config/coc'
+			call coc#add_extension('coc-phpls','coc-json', 'coc-tsserver','coc-html','coc-css','coc-vetur','coc-python','coc-vimlsp')
+			nmap <silent> gr <Plug>(coc-references)
+			nmap <silent> gd <Plug>(coc-definition)
+			nnoremap <silent> K :call <SID>show_documentation()<CR>
+			function! s:show_documentation()
+				if (index(['vim','help'], &filetype) >= 0)
+					execute 'h '.expand('<cword>')
+				else
+					call CocActionAsync('doHover')
+				endif
+			endfunction
+			" Show all diagnostics.
+			nnoremap <silent> ga  :<C-u>CocList diagnostics<cr>
+			let g:coc_status_error_sign    = '✗'
+			let g:coc_status_warning_sign  = '‼'
+			call coc#config('suggest', {
+						\ 'autoTrigger': 'none',
+						\ 'enablePreview':'true',
+						\})
+			"		call coc#config('coc.preferences', {
+			"			\ 'currentFunctionSymbolAutoUpdate': 'true',
+			"		\})
+			inoremap <silent><expr> <TAB>
+						\ pumvisible() ? "\<C-n>" :
+						\ <SID>check_back_space() ? "\<TAB>" :
+						\ coc#refresh()
+			inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+			function! s:check_back_space() abort
+				let col = col('.') - 1
+				return !col || getline('.')[col - 1]  =~# '\s'
+			endfunction
+		else
+			echom "npm in not installed."
+		endif
+	endif
+
+	" vim-lsp {{{2
+	if(exists("g:plugs['vim-lsp']"))
+		"autocmd User lsp_setup call lsp#register_server({
+		"			\ 'name': 'php-language-server',
+		"			\ 'cmd': {server_info->['php', expand('/Users/joseph/test/php-language-server/bin/php-language-server.php')]},
+		"			\ 'whitelist': ['php'],
+		"			\ })
+		let g:lsp_diagnostics_echo_cursor = 1
+
+		let g:cursorword=0
+		let g:lsp_highlight_references_enabled = 1
+		highlight lspReference term=underline cterm=underline  gui=underline
+
+		let g:lsp_signs_error = {'text': '✗'}
+		let g:lsp_signs_warning = {'text': '‼'}
+		let g:lsp_signs_hint = {'text': 'i'}
+
+		set omnifunc=lsp#complete
+		nmap gd <plug>(lsp-definition)
+		" yankring nmap gp
+		"nmap gp <plug>(lsp-peek-definition)
+		nmap gr <plug>(lsp-references)
+		nmap gs <plug>(lsp-signature-help)
+
+		autocmd FileType php.lsp-hover set syntax=php
+		"autocmd FileType markdown.lsp-hover set syntax=markdown
+		nnoremap <silent> K :call <SID>show_documentation()<CR>
+		function! s:show_documentation()
+			if (index(['vim','help'], &filetype) >= 0)
+				execute 'h '.expand('<cword>')
+			else
+				execute 'LspHover'
+			endif
+		endfunction
+	endif
 
 "------------------------------------------------------------
-" airline option {{{1
-let g:airline_theme='solarized'
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-"let g:airline#extensions#tabline#show_tabs=1
-let g:airline#extensions#tabline#buffer_nr_show =1
-let g:airline#extensions#cursormode#enabled = 1
+	"  ALE {{{2
+	if(exists("g:plugs['ale']"))
+		" These 2 options must be set before loading ALE ??
+		"let g:ale_set_balloons=1
+		"let g:ale_hover_to_preview=1
 
-let g:cursormode_mode_func = 'mode'
-let g:cursormode_color_map = {
-	 \ "nlight": '#000000',
-	 \ "ndark": '#BBBBBB',
-	 \ "n": g:airline#themes#{g:airline_theme}#palette.normal.airline_a[1],
-	 \ "i": g:airline#themes#{g:airline_theme}#palette.insert.airline_a[1],
-	 \ "R": g:airline#themes#{g:airline_theme}#palette.replace.airline_a[1],
-	 \ "v": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
-	 \ "V": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1],
-	 \ "\<C-V>": g:airline#themes#{g:airline_theme}#palette.visual.airline_a[1]
-	 \ }
+		function! s:get_project_root(buffer) abort
+			let l:path = ale#path#FindNearestFile(a:buffer, 'composer.json')
+			if (!empty(l:path))
+				return fnamemodify(l:path, ':h')
+			endif
 
-nmap <leader>- <Plug>AirlineSelectPrevTab
-nmap <leader>+ <Plug>AirlineSelectNextTab
+			let l:path = ale#path#FindNearestDirectory(a:buffer, '.git')
+			if (!empty(l:path))
+				return fnamemodify(l:path, ':h:h')
+			endif
 
-"------------------------------------------------------------
-" solarized option {{{1
-let g:solarized_termcolors=256
-syntax enable
-set background=dark
-colorscheme solarized
-" change function color to yellow
-hi Function cterm=bold ctermfg=136
-hi PmenuSel ctermbg=white ctermfg=darkblue
+			let l:path = ale#path#FindNearestFile(a:buffer, 'index.php')
+			if (!empty(l:path))
+				return fnamemodify(l:path, ':h')
+			endif
 
-" vim-indent-guides {{{1
-let g:indent_guides_auto_colors = 0
-hi IndentGuidesOdd  ctermbg=234
-hi IndentGuidesEven ctermbg=235
-let g:indent_guides_guide_size=1
+			return fnamemodify(bufname(a:buffer), ':p:h')
+		endfunction
 
-autocmd FileType php IndentGuidesEnable
-let g:echodoc_enable_at_startup = 1
-"autocmd FileType php EchoDocEnable
 
+		call ale#linter#Define('php', {
+					\   'name': 'intelephense-php',
+					\   'lsp': 'stdio',
+					\   'command': '%e '.s:configroot.'/.config/coc/extensions/node_modules/coc-phpls/node_modules/intelephense/lib/intelephense.js --stdio',
+					\   'executable': 'node',
+					\   'project_root': funcref('s:get_project_root')
+					\})
+		"let g:ale_completion_enabled=1
+		let g:ale_linters = {'php': ['intelephense-php','php']}
+		"set omnifunc=ale#completion#OmniFunc
+		" stock runtime scripts reset omnifunc
+		autocmd FileType * setlocal omnifunc=ale#completion#OmniFunc
+
+		"mappings
+		nmap <silent> gd <Plug>(ale_go_to_definition)
+		nmap <silent> gD <Plug>(ale_go_to_definition_in_split)
+		nmap <silent> gr <Plug>(ale_find_references)
+		nnoremap <silent> K :call <SID>show_documentation()<CR>
+		function! s:show_documentation()
+			if (index(['vim','help'], &filetype) >= 0)
+				execute 'h '.expand('<cword>')
+			else
+				call ale#hover#ShowAtCursor() 
+			endif
+		endfunction
+	 endif
+	" PIV {{{2
+	if(exists("g:plugs['PIV']"))
+		" PIV incorrectly set php functions as Identifier's
+		hi def link phpFunctions        Function
+	endif
+	" vim-vue {{{2
+	if(exists("g:plugs['vim-vue']"))
+		autocmd BufRead,BufNewFile *.vue		set filetype=vue
+	endif
+	" vista-vim {{{2
+	if(exists("g:plugs['vista-vim']"))
+		if(exists("g:plugs['coc.nmvim']"))
+			let g:vista_default_executive = 'vim-lsp'
+		elseif(exists("g:plugs['vim-lsp']"))
+			let g:vista_default_executive = 'vim_lsp'
+		elseif(exists("g:plugs['ale']"))
+			let g:vista_default_executive = 'ale'
+		endif
+	endif
+
+" }}}2
+catch
+	echo "Plugins configuration failed. Maybe One or more plugins is not installed. run :PlugInstall. exception : ".v:exception
+endtry
+"}}}1
+
+" vim: fdm=marker
