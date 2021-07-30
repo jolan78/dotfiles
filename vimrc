@@ -321,7 +321,8 @@ call plug#begin(s:configroot.'/.vim/plugged')
 	" more up to date php; allow folding and sql/html in php
 	Plug 'StanAngeloff/php.vim'
 	" available in stock vim, but brace at code level is broken since 3db7a43
-	Plug '2072/PHP-Indenting-for-VIm', {'commit':'1d33045'}
+	"Plug '2072/PHP-Indenting-for-VIm', {'commit':'1d33045'}
+	Plug '2072/PHP-Indenting-for-VIm'
 	if (has("patch-8.0.1453"))
 		Plug 'fatih/vim-go',{'for':'go'}
 	endif
@@ -373,6 +374,8 @@ call plug#begin(s:configroot.'/.vim/plugged')
 	Plug 'nathanaelkane/vim-indent-guides'
 	" Better whitespace highlighting for Vim (red tailing sp.)
 	Plug 'ntpeters/vim-better-whitespace'
+	" enable zooming in/out with <C-w>o
+	Plug 'troydm/zoomwintab.vim'
 
 	"----------------------------------------
 	" Usability {{{2
@@ -557,6 +560,7 @@ try
 		let g:airline#extensions#tabline#enabled = 1
 		"let g:airline#extensions#tabline#show_tabs=1
 		let g:airline#extensions#tabline#buffer_nr_show =1
+		let g:airline#extensions#zoomwintab#enabled = 1
 		let g:airline#extensions#whitespace#enabled = 0
 		let g:airline#extensions#cursormode#enabled = 1
 
