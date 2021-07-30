@@ -107,6 +107,16 @@ if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
 	# better powerline theme :
 	# zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme
 
+	exa_os='';
+	case $OSTYPE in
+		*darwin*) exa_os='macos';;
+		*linux*)  exa_os='linux';;
+		*)        exa_os='';;
+	esac
+	zplugin ice from'gh-r' as'command' bpick"*$exa_os*x86_64*" mv"exa* -> exa" atclone"cp -vf completions/exa.zsh _exa;mv bin/exa* ./" atpull'%atclone' if"[[ ! -z '$exa_os' ]]"
+	zplugin load ogham/exa
+	unset exa_os;
+
 	autoload -Uz compinit
 	compinit -u
 
