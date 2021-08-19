@@ -178,8 +178,8 @@ if [[ ${+TERM_PROGRAM} == '0' ]]; then
 fi
 
 # conserve la config vim de l'utilisateur d'origine
-alias vim="vim -u $ZDOTDIR/.vimrc"
-#export VIMINIT="let \$SSHUSER_HOME=\"$ZDOTDIR\" | so $ZDOTDIR/.vimrc | let \$MYVIMRC = \"$ZDOTDIR/.vimrc\""
+#alias vim="vim -u $ZDOTDIR/.vimrc"
+export VIMINIT="let \$SSHUSER_HOME=\"$ZDOTDIR\" | so $ZDOTDIR/.vimrc | let \$MYVIMRC = \"$ZDOTDIR/.vimrc\""
 # remplace su par une version qui conserve le shell de l'utilisateur d'origine
 if [ "`uname`" = "Darwin" ]; then
   alias su="sudo -s";
