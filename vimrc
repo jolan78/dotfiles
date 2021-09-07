@@ -289,7 +289,7 @@ endif
 if !filereadable(s:configroot."/.vim/autoload/plug.vim")
   echo "installing vim-plug..."
   try
-	  !curl -fLo s:configroot.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+	  exe "!curl -fLo ".s:configroot."/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
     if v:shell_error
       echo "exiting"
       quit
