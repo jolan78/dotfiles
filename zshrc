@@ -117,6 +117,10 @@ if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
 		zplugin ice from'gh-r' as'command' bpick"*$exa_os*x86_64*" mv"exa* -> exa" atclone"cp -vf completions/exa.zsh _exa;mv bin/exa* ./" atpull'%atclone' if"[[ ! -z '$exa_os' ]]"
 		zplugin load ogham/exa
 		unset exa_os;
+	else
+		zplugin ice as'completion' dl"https://raw.githubusercontent.com/ogham/exa/master/completions/zsh/_exa"
+		zplugin load ogham/exa
+
 	fi
 
 	autoload -Uz compinit
