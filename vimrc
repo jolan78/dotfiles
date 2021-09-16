@@ -376,6 +376,10 @@ call plug#begin(s:configroot.'/.vim/plugged')
 	Plug 'ntpeters/vim-better-whitespace'
 	" enable zooming in/out with <C-w>o
 	Plug 'troydm/zoomwintab.vim'
+	" add icons to nerdtree, airline etc.
+	Plug 'ryanoasis/vim-devicons'
+	" per window search. enable with ,/
+	Plug 'mox-mox/vim-localsearch'
 
 	"----------------------------------------
 	" Usability {{{2
@@ -551,6 +555,11 @@ try
 		let g:NERDTreeExtensionHighlightColor = {} "this line is needed to avoid error
 		let g:NERDTreeExtensionHighlightColor['vue']='42b883'
 
+	endif
+	"------------------------------------------------------------
+	" localsearch {{{2
+	if(exists("g:plugs['vim-localsearch']"))
+		nmap <leader>/ <Plug>localsearch_toggle
 	endif
 	"------------------------------------------------------------
 	" airline {{{2
