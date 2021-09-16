@@ -107,7 +107,7 @@ if [[ -a  "${ZPLUGIN_HOME}/bin/zplugin.zsh" ]]; then
 	# better powerline theme :
 	# zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme
 
-	if (( ! $+commands[ls] )); then 
+	if (( ! $+commands[exa] )); then 
 		exa_os='';
 		case $OSTYPE in
 			*darwin*) exa_os='macos';;
@@ -226,7 +226,8 @@ setopt share_history          # share command history data
 
 alias glog="git log --color --decorate --graph --stat --abbrev-commit"
 compdef _git glog="git log"
-alias l='ls -lah'
+#alias l='ls -lah'
+alias l="exa -hlag --icons"
 if $(ls --color=tty >/dev/null 2>&1);then
 	alias ls='ls --color=tty'
 else
