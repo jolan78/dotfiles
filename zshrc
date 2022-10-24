@@ -169,8 +169,8 @@ function powerline() {
   BRANCH="\ue0a0"
 }
 
-if [[ -f ${ZDOTDIR}/.iterm2_shell_integration.zsh ]];then
-  source ${ZDOTDIR}/.iterm2_shell_integration.zsh
+if [[ -f ${ZDOTDIR}/.wezterm.zsh ]];then
+  source ${ZDOTDIR}/.wezterm.zsh
 fi
 
 export PATH="${PATH}:${ZDOTDIR}/bin"

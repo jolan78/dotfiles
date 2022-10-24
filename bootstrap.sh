@@ -1,7 +1,7 @@
 #!/bin/zsh
 dotfiles=${$(dirname $0):a}
 
-for file in iterm2_shell_integration.zsh zshrc vimrc ;do
+for file in wezterm.zsh zshrc vimrc ;do
 	path=$HOME/.$file
 	if [[ ! -h $path ]];then
 		if [[ -f $path ]];then
