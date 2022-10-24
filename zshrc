@@ -33,7 +33,9 @@ bindkey "${terminfo[kcud1]}" down-line-or-beginning-search # Down
 #bindkey "^^" _history-complete-newer #Ctrl-^
 #bindkey "^]" _history-complete-older # Ctrl-$
 bindkey '^[b' emacs-backward-word # alt-left
+bindkey '^[[1;3D' emacs-backward-word # alt-left
 bindkey '^[f' emacs-forward-word # alt-right
+bindkey '^[[1;3C' emacs-forward-word # alt-right
 bindkey "^A" beginning-of-line
 bindkey "^E" end-of-line
 bindkey "^[[3~" delete-char # del
