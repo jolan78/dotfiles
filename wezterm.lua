@@ -80,33 +80,49 @@ wezterm.on('update-right-status', function(window, pane)
   window:set_right_status(wezterm.format(elements))
 end)
 
+wezterm.on('toggle-ligature', function(window, pane)
+  local overrides = window:get_config_overrides() or {}
+  if not overrides.harfbuzz_features then
+    -- If we haven't overridden it yet, then override with ligatures disabled
+    overrides.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' }
+  else
+    -- else we did already, and we should disable out override now
+    overrides.harfbuzz_features = nil
+  end
+  window:set_config_overrides(overrides)
+end)
+
 return {
 
   color_scheme = "Solarized Dark - Patched",
-	-- color_scheme = "Solarized Darcula",
+  -- color_scheme = "Solarized Darcula",
   -- color_scheme = "Solarized Dark Higher Contrast",
 
-	-- solid blinking cursor (no ease in/out)
-	default_cursor_style = 'BlinkingBlock',
-	cursor_blink_ease_in = 'Constant',
-	cursor_blink_ease_out = 'Constant',
+  font_size = 16.0,
+
+  -- solid blinking cursor (no ease in/out)
+  default_cursor_style = 'BlinkingBlock',
+  cursor_blink_ease_in = 'Constant',
+  cursor_blink_ease_out = 'Constant',
   cursor_blink_rate = 500,
 
-	enable_scroll_bar = true,
+  enable_scroll_bar = true,
 
-	window_padding = { left = 0, right = 0, top = 0, bottom = 0, },
+  window_padding = { left = 0, right = 0, top = 0, bottom = 0, },
 
-	-- not working ?
+  -- not working ?
   use_dead_keys = false,
-	allow_win32_input_mode = false,
-	inactive_pane_hsb = {
-			hue = 1.0,
-			saturation = 0.7,
-			brightness = 0.8,
-	},
+  -- prevent ligatures such as != or >=
+  -- harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
 
-	hyperlink_rules = {
-	  -- Linkify things that look like URLs and the host has a TLD name.
+  inactive_pane_hsb = {
+      hue = 1.0,
+      saturation = 0.7,
+      brightness = 0.8,
+  },
+
+  hyperlink_rules = {
+    -- Linkify things that look like URLs and the host has a TLD name.
     -- Compiled-in default. Used if you don't specify any hyperlink_rules.
     {
       regex = '\\b\\w+://[\\w.-]+\\.[a-z]{2,15}\\S*\\b',
@@ -134,37 +150,43 @@ return {
       format = '$0',
     },
   },
-	launch_menu = {
-		{
-			args = { 'top' },
-		},
-		{
-			label = 'sys M&R',
-			args = {'ssh','sys.moveandrent.com'},
-		}
-	},
-	mouse_bindings = {
-		-- Default behavior is to follow open links. Disable, just select text.
-		{event={Up={streak=1, button="Left"}}, mods="NONE", action=wezterm.action.CompleteSelection("PrimarySelection")},
-		-- and make CTRL-Click open hyperlinks (even when mouse reporting)
-		{event={Up={streak=1, button="Left"}}, mods="CTRL", action="OpenLinkAtMouseCursor", mouse_reporting=true},
-		{event={Up={streak=1, button="Left"}}, mods="CTRL", action="OpenLinkAtMouseCursor"},
-		-- Since we capture the 'Up' event, Disable 'Down' of ctrl-click to avoid programs from receiving it
-		{event={Down={streak=1, button="Left"}}, mods="CTRL", action="Nop", mouse_reporting=true},
-		-- allow selecting cmd output with quadruple-click
+  launch_menu = {
+    {
+      args = { 'top' },
+    },
+    {
+      label = 'sys M&R',
+      args = {'ssh','sys.moveandrent.com'},
+    }
+  },
+  mouse_bindings = {
+    -- Default behavior is to follow open links. Disable, just select text.
+    {event={Up={streak=1, button="Left"}}, mods="NONE", action=wezterm.action.CompleteSelection("PrimarySelection")},
+    -- and make CTRL-Click open hyperlinks (even when mouse reporting)
+    {event={Up={streak=1, button="Left"}}, mods="CTRL", action="OpenLinkAtMouseCursor", mouse_reporting=true},
+    {event={Up={streak=1, button="Left"}}, mods="CTRL", action="OpenLinkAtMouseCursor"},
+    -- Since we capture the 'Up' event, Disable 'Down' of ctrl-click to avoid programs from receiving it
+    {event={Down={streak=1, button="Left"}}, mods="CTRL", action="Nop", mouse_reporting=true},
+    -- allow selecting cmd output with quadruple-click
     {
       event = { Down = { streak = 4, button = 'Left' } },
       action = wezterm.action.SelectTextAtMouseCursor 'SemanticZone',
       mods = 'NONE',
     },
 
-	},
-  keys = {
-    { key = 'UpArrow', mods = 'SHIFT', action = wezterm.action.ScrollToPrompt(-1) },
-    { key = 'DownArrow', mods = 'SHIFT', action = wezterm.action.ScrollToPrompt(1) },
   },
-	colors = {
-	-- The color of the scrollbar "thumb"; the portion that represents the current viewport
+
+  leader = { key="@", mods="CTRL" },
+  keys = {
+    { key = 'UpArrow',   mods = 'SHIFT',      action = wezterm.action.ScrollToPrompt(-1) },
+    { key = 'DownArrow', mods = 'SHIFT',      action = wezterm.action.ScrollToPrompt(1) },
+    { key = 'k',         mods = 'CTRL|SHIFT', action = wezterm.action.ClearScrollback("ScrollbackAndViewport")},
+
+    { key = 'l',         mods = 'LEADER',     action = wezterm.action.EmitEvent 'toggle-ligature' },
+  },
+  colors = {
+    -- The color of the scrollbar "thumb"; the portion that represents the current viewport
     scrollbar_thumb = '#888888',
-	},
+    selection_bg    = '#555555',
+  },
 }
