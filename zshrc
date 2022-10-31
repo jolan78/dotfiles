@@ -47,6 +47,9 @@ bindkey "^X^E" edit-command-line # ^X^E : edit current line in editor
 # The string may begin with ^ to anchor the search to the beginning of the line.
 bindkey '^r' history-incremental-search-backward
 
+# / is considered a word separator
+WORDCHARS="${WORDCHARS:s#/#}"
+
 ####################### Zplugin ######################
 export ZPLUGIN_HOME=$ZDOTDIR/.zplugin
 
