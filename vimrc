@@ -27,11 +27,11 @@ let &runtimepath = &runtimepath.','.s:configroot.'/.vim/'
 
 set backup " make backup files
 if !isdirectory($HOME."/.vim_backup/")
-    call mkdir($HOME.'/.vim_backup')
+	call mkdir($HOME.'/.vim_backup')
 endif
 set backupdir=$HOME/.vim_backup " where to put backup files
 if !isdirectory($HOME.'/.vim_swp/')
-    call mkdir($HOME.'/.vim_swp')
+	call mkdir($HOME.'/.vim_swp')
 endif
 set directory=$HOME/.vim_swp " directory to place swap files in
 
@@ -284,196 +284,196 @@ set cursorline
 "	finish
 "endif
 if !isdirectory(s:configroot.'/.vim/plugged/')
-  call mkdir(s:configroot.'/.vim/plugged/','p')
+	call mkdir(s:configroot.'/.vim/plugged/','p')
 endif
 if !filereadable(s:configroot."/.vim/autoload/plug.vim")
-  echo "installing vim-plug..."
-  try
-	  exe "!curl -fLo ".s:configroot."/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
-    if v:shell_error
-      echo "exiting"
-      quit
-    endif
-  catch
-    echo "error !"
-    quit
-  endtry
+	echo "installing vim-plug..."
+	try
+		exe "!curl -fLo ".s:configroot."/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+		if v:shell_error
+			echo "exiting"
+			quit
+		endif
+	catch
+		echo "error !"
+		quit
+	endtry
 endif
 
 
 call plug#begin(s:configroot.'/.vim/plugged')
 
 
-	"----------------------------------------
-	" Language-specific plugins {{{2
-	Plug 'othree/html5.vim'
-	Plug 'elzr/vim-json',{'for':'json'}
-	Plug 'posva/vim-vue',{'for':['vue','js','php','php.html']}
-	Plug 'vim-scripts/indentpython.vim',{'for':'py'}
+"----------------------------------------
+" Language-specific plugins {{{2
+Plug 'othree/html5.vim'
+Plug 'elzr/vim-json',{'for':'json'}
+Plug 'posva/vim-vue',{'for':['vue','js','php','php.html']}
+Plug 'vim-scripts/indentpython.vim',{'for':'py'}
 
-	"Plug 'lvht/phpcd.vim', { 'for': ['php','php.html']}
-	"Plugin 'spf13/PIV'
-	"Plugin 'shawncplus/phpcomplete.vim'
+"Plug 'lvht/phpcd.vim', { 'for': ['php','php.html']}
+"Plugin 'spf13/PIV'
+"Plugin 'shawncplus/phpcomplete.vim'
 
-	"load this on demand only with :PlugStatus then L
-	Plug 'joonty/vdebug',{'for':[]}
+"load this on demand only with :PlugStatus then L
+Plug 'joonty/vdebug',{'for':[]}
 
-	" more up to date php; allow folding and sql/html in php
-	Plug 'StanAngeloff/php.vim'
-	" available in stock vim, but brace at code level is broken since 3db7a43
-	"Plug '2072/PHP-Indenting-for-VIm', {'commit':'1d33045'}
-	Plug '2072/PHP-Indenting-for-VIm'
-	if (has("patch-8.0.1453"))
-		Plug 'fatih/vim-go',{'for':'go'}
-	endif
+" more up to date php; allow folding and sql/html in php
+Plug 'StanAngeloff/php.vim'
+" available in stock vim, but brace at code level is broken since 3db7a43
+"Plug '2072/PHP-Indenting-for-VIm', {'commit':'1d33045'}
+Plug '2072/PHP-Indenting-for-VIm'
+if (has("patch-8.0.1453"))
+	Plug 'fatih/vim-go',{'for':'go'}
+endif
 
-	"----------------------------------------
-	" LSP plugins {{{2
-	
-	"Plug 'neoclide/coc.nvim', {'branch': 'release'}
+"----------------------------------------
+" LSP plugins {{{2
 
-	Plug 'dense-analysis/ale'
+"Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-	" vim-lsp depends on ascync on vim8
-	"Plug 'prabirshrestha/async.vim'
-	"Plug 'prabirshrestha/vim-lsp'
-	" provides :LspInstall
-	"Plug 'mattn/vim-lsp-settings'
+Plug 'dense-analysis/ale'
 
-	" vim-lsp rely on ascynccomplete for autocompletion
-	"Plug 'prabirshrestha/asyncomplete.vim'
-	"Plug 'prabirshrestha/asyncomplete-lsp.vim'
-	
-	" Viewer & Finder for LSP symbols and tags
-	" invoke with :Vista vim-lsp (or another lsp plugin)
-	" deactivated because it complains if ctags is not installed
-	"Plug 'liuchengxu/vista.vim'
+" vim-lsp depends on ascync on vim8
+"Plug 'prabirshrestha/async.vim'
+"Plug 'prabirshrestha/vim-lsp'
+" provides :LspInstall
+"Plug 'mattn/vim-lsp-settings'
 
-	" Others {{{3
-	"Plug 'neomake/neomake'
+" vim-lsp rely on ascynccomplete for autocompletion
+"Plug 'prabirshrestha/asyncomplete.vim'
+"Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
-	"----------------------------------------
-	" UI Plugins {{{2
-	Plug 'scrooloose/nerdtree'
-	Plug 'Xuyuanp/nerdtree-git-plugin'
-	Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-	Plug 'tomtom/quickfixsigns_vim'
-		let g:quickfixsigns_classes = [ 'qfl', 'loc', 'marks', 'vcsdiff']
-		"sign define QFS_QFL text=* texthl=WarningMsg linehl=WarningMsg_Bg
-		"sign define QFS_LOC text=> texthl=Special linehl=Special_Bg
-		"
-	" sidebar w/ registers when pasting
-	Plug 'junegunn/vim-peekaboo'
+" Viewer & Finder for LSP symbols and tags
+" invoke with :Vista vim-lsp (or another lsp plugin)
+" deactivated because it complains if ctags is not installed
+"Plug 'liuchengxu/vista.vim'
 
-	Plug 'altercation/vim-colors-solarized'
-	Plug 'vim-airline/vim-airline'
-	Plug 'vim-airline/vim-airline-themes'
-	" :UndotreeToggle pour afficher
-	Plug 'mbbill/undotree'
-	" colorize indent guides
-	Plug 'nathanaelkane/vim-indent-guides'
-	" Better whitespace highlighting for Vim (red tailing sp.)
-	Plug 'ntpeters/vim-better-whitespace'
-	" enable zooming in/out with <C-w>o
-	Plug 'troydm/zoomwintab.vim'
-	" add icons to nerdtree, airline etc.
-	Plug 'ryanoasis/vim-devicons'
-	" per window search. enable with ,/
-	Plug 'mox-mox/vim-localsearch'
+" Others {{{3
+"Plug 'neomake/neomake'
 
-	"----------------------------------------
-	" Usability {{{2
-	Plug 'machakann/vim-highlightedyank'
+"----------------------------------------
+" UI Plugins {{{2
+Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+Plug 'tomtom/quickfixsigns_vim'
+let g:quickfixsigns_classes = [ 'qfl', 'loc', 'marks', 'vcsdiff']
+"sign define QFS_QFL text=* texthl=WarningMsg linehl=WarningMsg_Bg
+"sign define QFS_LOC text=> texthl=Special linehl=Special_Bg
+"
+" sidebar w/ registers when pasting
+Plug 'junegunn/vim-peekaboo'
 
-	Plug 'vim-scripts/YankRing.vim'
-	let g:yankring_window_use_horiz = 0 
+Plug 'altercation/vim-colors-solarized'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+" :UndotreeToggle pour afficher
+Plug 'mbbill/undotree'
+" colorize indent guides
+Plug 'nathanaelkane/vim-indent-guides'
+" Better whitespace highlighting for Vim (red tailing sp.)
+Plug 'ntpeters/vim-better-whitespace'
+" enable zooming in/out with <C-w>o
+Plug 'troydm/zoomwintab.vim'
+" add icons to nerdtree, airline etc.
+Plug 'ryanoasis/vim-devicons'
+" per window search. enable with ,/
+Plug 'mox-mox/vim-localsearch'
 
-	if(!exists("g:plugs['coc.nvim']"))
-		Plug 'ervandew/supertab'
-			" CR selects current entry in popup (instead of inserting actual CR)
-			let g:SuperTabCrMapping=0
-			let g:SuperTabDefaultCompletionType = "context"
-			let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
-	endif
-	Plug 'jolan78/iTerm2Yank'
+"----------------------------------------
+" Usability {{{2
+Plug 'machakann/vim-highlightedyank'
 
-	" auto-completion for quotes, parens, brackets, etc.
-	"Plug 'Raimondi/delimitMate'
-	" breaks '.' repeat until vim 7.4.849
+Plug 'vim-scripts/YankRing.vim'
+let g:yankring_window_use_horiz = 0 
 
-	" like delimitmate. default mappings for advanced fns conflicts macos alt chars
-	" fast frap next word in pairs
-	let g:AutoPairsShortcutFastWrap='<C-f>'
-	autocmd FileType vim let b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", '`':'`'}
-	Plug 'jiangmiao/auto-pairs'
+if(!exists("g:plugs['coc.nvim']"))
+	Plug 'ervandew/supertab'
+	" CR selects current entry in popup (instead of inserting actual CR)
+	let g:SuperTabCrMapping=0
+	let g:SuperTabDefaultCompletionType = "context"
+	let g:SuperTabContextDefaultCompletionType = "<c-x><c-o>"
+endif
+Plug 'jolan78/iTerm2Yank'
 
-	" extended % matching for HTML, LaTeX, and many other languages
-	Plug 'vim-scripts/matchit.zip'
-	" Underlines the word under the cursor
-	Plug 'itchyny/vim-cursorword'
-	if (has("patch-7.4-1578"))
-		"physics-based smooth scrolling
-		Plug 'yuttie/comfortable-motion.vim'
-	endif
+" auto-completion for quotes, parens, brackets, etc.
+"Plug 'Raimondi/delimitMate'
+" breaks '.' repeat until vim 7.4.849
 
-	" display fn doc. coc implements it
-	if (has("patch-7.4-774") && !exists("g:plugs['coc.nvim']"))
-		Plug 'Shougo/echodoc.vim'
-	endif
+" like delimitmate. default mappings for advanced fns conflicts macos alt chars
+" fast frap next word in pairs
+let g:AutoPairsShortcutFastWrap='<C-f>'
+autocmd FileType vim let b:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", '`':'`'}
+Plug 'jiangmiao/auto-pairs'
 
-	"----------------------------------------
-	" Generic plugins {{{2
-	Plug 'Maxlufs/LargeFile.vim'
-		" size in MB
-		let g:LargeFile=5
+" extended % matching for HTML, LaTeX, and many other languages
+Plug 'vim-scripts/matchit.zip'
+" Underlines the word under the cursor
+Plug 'itchyny/vim-cursorword'
+if (has("patch-7.4-1578"))
+	"physics-based smooth scrolling
+	Plug 'yuttie/comfortable-motion.vim'
+endif
 
-	" Vim script for text filtering and alignment (:Tabularize)
-	Plug 'godlygeek/tabular'
+" display fn doc. coc implements it
+if (has("patch-7.4-774") && !exists("g:plugs['coc.nvim']"))
+	Plug 'Shougo/echodoc.vim'
+endif
 
-	" change args position . use :SidewaysRight
-	Plug 'AndrewRadev/sideways.vim'
+"----------------------------------------
+" Generic plugins {{{2
+Plug 'Maxlufs/LargeFile.vim'
+" size in MB
+let g:LargeFile=5
 
-	if executable('ag')
-		let g:ackprg = 'ag --vimgrep'
-		" :Ack pour chercher
-		Plug 'mileszs/ack.vim'
-	endif
+" Vim script for text filtering and alignment (:Tabularize)
+Plug 'godlygeek/tabular'
 
-	" Use :Grepper to open a prompt
-	Plug 'mhinz/vim-grepper'
+" change args position . use :SidewaysRight
+Plug 'AndrewRadev/sideways.vim'
 
-	" auto set paste on fast input for old vims
-	" breaks delimitmate
-	if (!has("patch-8.0-0210"))
-		" breaks auto-pairs if too fast
-		"Plug 'roxma/vim-paste-easy'
-	endif
+if executable('ag')
+	let g:ackprg = 'ag --vimgrep'
+	" :Ack pour chercher
+	Plug 'mileszs/ack.vim'
+endif
 
-	" secure alternative to modeline
-	" see https://www.vim.org/scripts/script.php?script_id=1876
-	Plug 'ciaranm/securemodelines'
+" Use :Grepper to open a prompt
+Plug 'mhinz/vim-grepper'
 
-	"----------------------------------------
-	" Disabled plugins {{{2
+" auto set paste on fast input for old vims
+" breaks delimitmate
+if (!has("patch-8.0-0210"))
+	" breaks auto-pairs if too fast
+	"Plug 'roxma/vim-paste-easy'
+endif
 
-	" Heuristically set buffer options
-	" Plugin 'tpope/vim-sleuth'
+" secure alternative to modeline
+" see https://www.vim.org/scripts/script.php?script_id=1876
+Plug 'ciaranm/securemodelines'
 
-	"'swap_parameters' -> requires python
+"----------------------------------------
+" Disabled plugins {{{2
 
-	" interactoive shell interpreter (requires psysh)
-	" Plug 'metakirby5/codi.vim'
-	"
-	"Plugin 'ConradIrwin/vim-bracketed-paste'
+" Heuristically set buffer options
+" Plugin 'tpope/vim-sleuth'
 
+"'swap_parameters' -> requires python
 
+" interactoive shell interpreter (requires psysh)
+" Plug 'metakirby5/codi.vim'
+"
+"Plugin 'ConradIrwin/vim-bracketed-paste'
 
 
-	" usefull for statusline
-	"Plugin 'rafi/vim-badge'
 
-	" Smart selection of the closest text object (enter/BS in normal mode)
-	"Plug 'gcmt/wildfire.vim'
+
+" usefull for statusline
+"Plugin 'rafi/vim-badge'
+
+" Smart selection of the closest text object (enter/BS in normal mode)
+"Plug 'gcmt/wildfire.vim'
 
 
 
@@ -485,7 +485,7 @@ call plug#begin(s:configroot.'/.vim/plugged')
 "let g:easytags_cmd = '/Users/joseph/bin/phpctags'
 "	Plugin 'xolox/vim-misc'
 "	Plugin 'xolox/vim-easytags'
-	call plug#end()
+call plug#end()
 
 "-----------------------------------------------------------
 " Plugins configuration {{{1
@@ -572,6 +572,10 @@ try
 		let g:airline#extensions#zoomwintab#enabled = 1
 		let g:airline#extensions#whitespace#enabled = 0
 		let g:airline#extensions#cursormode#enabled = 1
+		if !exists('g:airline_symbols')
+			let g:airline_symbols = {}
+		endif
+		let g:airline_symbols.linenr = '¶'
 
 		let g:cursormode_mode_func = 'mode'
 		let g:cursormode_color_map = {
@@ -694,7 +698,7 @@ try
 		endfunction
 	endif
 
-"------------------------------------------------------------
+	"------------------------------------------------------------
 	"  ALE {{{2
 	if(exists("g:plugs['ale']"))
 		" These 2 options must be set before loading ALE ??
@@ -746,7 +750,7 @@ try
 				call ale#hover#ShowAtCursor() 
 			endif
 		endfunction
-	 endif
+	endif
 	" PIV {{{2
 	if(exists("g:plugs['PIV']"))
 		" PIV incorrectly set php functions as Identifier's
@@ -767,7 +771,7 @@ try
 		endif
 	endif
 
-" }}}2
+	" }}}2
 catch
 	echo "Plugins configuration failed. Maybe One or more plugins is not installed. run :PlugInstall. exception : ".v:exception
 endtry
